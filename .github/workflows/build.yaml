@@ -1,4 +1,4 @@
-name: application_manager
+name: application-manager
 
 on:
   push:
@@ -28,6 +28,6 @@ jobs:
         with:
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/sifis-home/application_manager:latest
+          tags: ghcr.io/sifis-home/application-manager:latest
           build-args: |
             COMMIT_ID=${{ github.sha }}

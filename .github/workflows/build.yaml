@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  push:
+    contents: write
+
 jobs:
   docker:
     runs-on: ubuntu-latest

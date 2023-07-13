@@ -2,7 +2,7 @@
 name = "application-manager"
 version = "0.0"
 description = "Description of your tool"
-authors = ["Marco Simoni marco.simoni@iit.cnr.it"]
+authors = ["Marco Simoni <marco.simoni@iit.cnr.it>"]
 repository = "https://github.com/sifis-home/Application-Manager"
 license = "MIT"
 classifiers = [

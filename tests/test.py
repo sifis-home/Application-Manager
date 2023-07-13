@@ -1,9 +1,10 @@
-import pytest
-from unittest.mock import patch
-from io import StringIO
 import json
+from io import StringIO
+from unittest.mock import patch
+
 import app_dht
 import catch_topic
+import pytest
 
 
 def test_handle_pull_image():

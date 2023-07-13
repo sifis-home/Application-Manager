@@ -1,6 +1,7 @@
-import docker
 import io
 from io import BytesIO
+
+import docker
 
 client = docker.from_env()
 

@@ -1,5 +1,3 @@
-import io
-from io import BytesIO
 
 import docker
 

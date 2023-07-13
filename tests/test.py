@@ -2,7 +2,6 @@ import json
 from io import StringIO
 from unittest.mock import patch
 
-import app_dht
 import catch_topic
 import pytest
 

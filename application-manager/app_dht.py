@@ -4,16 +4,18 @@ from io import BytesIO
 
 client = docker.from_env()
 
+
 def pull_image(image_name):
     if image_name:
         try:
             client.images.pull(image_name)
-            #print(f"Image {image_name} pulled successfully!")
+            # print(f"Image {image_name} pulled successfully!")
             return f"Image {image_name} pulled successfully!"
         except docker.errors.APIError as e:
             return f"Error while pulling image {image_name}: {e}", 500
     else:
         return "Missing 'image_name' parameter", 400
+
 
 def start_container(image_name):
     if image_name:
@@ -23,7 +25,10 @@ def start_container(image_name):
         except docker.errors.ImageNotFound as e:
             return f"Image {image_name} not found: {e}", 404
         except docker.errors.APIError as e:
-            return f"Error while starting container from image {image_name}: {e}", 500
+            return (
+                f"Error while starting container from image {image_name}: {e}",
+                500,
+            )
     else:
         return "Missing 'image_name' parameter", 400
 
@@ -41,6 +46,7 @@ def stop_container(container_id):
     else:
         return "Missing 'container_id' parameter", 400
 
+
 def remove_container(container_id):
     if container_id:
         try:
@@ -53,6 +59,7 @@ def remove_container(container_id):
             return f"Error while removing container {container_id}: {e}", 500
     else:
         return "Missing 'container_id' parameter", 400
+
 
 def remove_image(image_name):
     if not image_name:

@@ -5,6 +5,7 @@ import json
 import app_dht
 import catch_topic
 
+
 def test_handle_pull_image():
     topic_name = {"image_name": "my_image"}
     expected_output = "Image pulled successfully."
@@ -13,6 +14,7 @@ def test_handle_pull_image():
             catch_topic.handle_pull_image(topic_name)
             output = fake_output.getvalue().strip()
             assert output == expected_output
+
 
 def test_handle_start_container():
     topic_name = {"image_name": "my_image"}
@@ -23,19 +25,20 @@ def test_handle_start_container():
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
+
 # Add more test functions for other functions...
+
 
 @patch("json.loads")
 def test_on_message_pull_image(mock_loads):
-    mock_message = json.dumps({
-        "Persistent": {
-            "topic_name": "SIFIS:app_manager",
-            "value": {
-                "operation": "pull_image",
-                "image_name": "my_image"
+    mock_message = json.dumps(
+        {
+            "Persistent": {
+                "topic_name": "SIFIS:app_manager",
+                "value": {"operation": "pull_image", "image_name": "my_image"},
             }
         }
-    })
+    )
     mock_loads.return_value = json.loads(mock_message)
     with patch("app_dht.pull_image"):
         with patch("sys.stdout", new=StringIO()) as fake_output:
@@ -43,6 +46,7 @@ def test_on_message_pull_image(mock_loads):
             catch_topic.on_message(ws, mock_message)
             output = fake_output.getvalue().strip()
             assert "Received:" in output
+
 
 def test_handle_remove_image():
     topic_name = {"image_name": "my_image"}
@@ -53,19 +57,23 @@ def test_handle_remove_image():
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
+
 # Add more test functions for other functions...
+
 
 @patch("json.loads")
 def test_on_message_remove_image(mock_loads):
-    mock_message = json.dumps({
-        "Persistent": {
-            "topic_name": "SIFIS:app_manager",
-            "value": {
-                "operation": "remove_image",
-                "image_name": "my_image"
+    mock_message = json.dumps(
+        {
+            "Persistent": {
+                "topic_name": "SIFIS:app_manager",
+                "value": {
+                    "operation": "remove_image",
+                    "image_name": "my_image",
+                },
             }
         }
-    })
+    )
     mock_loads.return_value = json.loads(mock_message)
     with patch("app_dht.remove_image"):
         with patch("sys.stdout", new=StringIO()) as fake_output:
@@ -74,6 +82,7 @@ def test_on_message_remove_image(mock_loads):
             output = fake_output.getvalue().strip()
             assert "Received:" in output
 
+
 def test_handle_list_containers():
     expected_output = "List of containers: container1, container2, container3"
     with patch("app_dht.list_containers", return_value=expected_output):
@@ -81,6 +90,7 @@ def test_handle_list_containers():
             catch_topic.handle_list_containers()
             output = fake_output.getvalue().strip()
             assert output == expected_output
+
 
 if __name__ == "__main__":
     pytest.main()

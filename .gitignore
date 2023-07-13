@@ -1,6 +1,9 @@
+# Ignore dotfiles except for the .gitignore dotfile
 .*
 !.gitignore
 
+# Ignore poetry lock file
 poetry.lock
 
-__pycache__ /
+# Ignore pycache directory and its files
+__pycache__/*

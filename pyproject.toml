@@ -11,7 +11,7 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3 :: Only",
 ]
-include = ["README.md", "LICENSE.md", "{{ name }}/data/*"]
+include = ["README.md", "LICENSE.md", "application-manager/data/*"]
 packages = [
     { include = "application-manager" },
 ]

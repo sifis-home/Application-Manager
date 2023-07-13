@@ -10,7 +10,7 @@ def test_handle_pull_image():
     expected_output = "Image pulled successfully."
     with patch("app_dht.pull_image", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            my_script.handle_pull_image(topic_name)
+            catch_topic.handle_pull_image(topic_name)
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -19,7 +19,7 @@ def test_handle_start_container():
     expected_output = "Container started successfully."
     with patch("app_dht.start_container", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            my_script.handle_start_container(topic_name)
+            catch_topic.handle_start_container(topic_name)
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -40,8 +40,8 @@ def test_on_message_pull_image(mock_loads):
     expected_output = "Image pulled successfully."
     with patch("app_dht.pull_image", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            ws = my_script.websocket.WebSocketApp("ws://localhost:3000/ws")
-            my_script.on_message(ws, mock_message)
+            ws = catch_topic.websocket.WebSocketApp("ws://localhost:3000/ws")
+            catch_topic.on_message(ws, mock_message)
             output = fake_output.getvalue().strip()
             assert output == expected_output
 

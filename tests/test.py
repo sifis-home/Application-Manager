@@ -2,8 +2,9 @@ import json
 from io import StringIO
 from unittest.mock import patch
 
-import catch_topic
 import pytest
+
+import catch_topic
 
 
 def test_handle_pull_image():

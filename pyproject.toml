@@ -18,6 +18,8 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.11"
+docker
+websocket-client
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"

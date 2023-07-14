@@ -27,7 +27,24 @@ def test_handle_start_container():
             assert output == expected_output
 
 
-# Add more test functions for other functions...
+def test_handle_stop_container():
+    topic_name = {"container_id": "my_container"}
+    expected_output = "Container stopped successfully."
+    with patch("app_dht.stop_container", return_value=expected_output):
+        with patch("sys.stdout", new=StringIO()) as fake_output:
+            catch_topic.handle_stop_container(topic_name)
+            output = fake_output.getvalue().strip()
+            assert output == expected_output
+
+
+def test_handle_remove_container():
+    topic_name = {"container_id": "my_container"}
+    expected_output = "Container removed successfully."
+    with patch("app_dht.remove_container", return_value=expected_output):
+        with patch("sys.stdout", new=StringIO()) as fake_output:
+            catch_topic.handle_remove_container(topic_name)
+            output = fake_output.getvalue().strip()
+            assert output == expected_output
 
 
 @patch("json.loads")

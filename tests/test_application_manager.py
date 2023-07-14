@@ -36,6 +36,25 @@ def test_handle_stop_container():
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
+@patch("json.loads")
+def test_on_message_start_container(mock_loads):
+    mock_message = json.dumps(
+        {
+            "Persistent": {
+                "topic_name": "SIFIS:app_manager",
+                "value": {"operation": "start_container", "image_name": "my_image"},
+            }
+        }
+    )
+    mock_loads.return_value = json.loads(mock_message)
+    with patch("app_dht.start_container"):
+        with patch("sys.stdout", new=StringIO()) as fake_output:
+            ws = catch_topic.websocket.WebSocketApp("ws://localhost:3000/ws")
+            catch_topic.on_message(ws, mock_message)
+            output = fake_output.getvalue().strip()
+            assert "Received:" in output
+
+
 
 def test_handle_remove_container():
     topic_name = {"container_id": "my_container"}

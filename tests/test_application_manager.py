@@ -36,13 +36,17 @@ def test_handle_stop_container():
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
+
 @patch("json.loads")
 def test_on_message_start_container(mock_loads):
     mock_message = json.dumps(
         {
             "Persistent": {
                 "topic_name": "SIFIS:app_manager",
-                "value": {"operation": "start_container", "image_name": "my_image"},
+                "value": {
+                    "operation": "start_container",
+                    "image_name": "my_image",
+                },
             }
         }
     )
@@ -53,7 +57,6 @@ def test_on_message_start_container(mock_loads):
             catch_topic.on_message(ws, mock_message)
             output = fake_output.getvalue().strip()
             assert "Received:" in output
-
 
 
 def test_handle_remove_container():

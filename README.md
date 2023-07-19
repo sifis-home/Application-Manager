@@ -45,7 +45,7 @@ $curl -X POST http://localhost:5000/check
 [license]: LICENSES/MIT.txt
 
 <!-- Badges -->
-[actions badge]: https://github.com/sifis-home/libp2p-rust-dht/workflows/Application-Manager/badge.svg
+[actions badge]: https://github.com/sifis-home/Application-Manager/workflows/Application-Manager/badge.svg
 [codecov badge]: https://codecov.io/gh/sifis-home/Application-Manager/branch/master/graph/badge.svg
 [license badge]: https://img.shields.io/badge/license-MIT-blue.svg
 

@@ -37,20 +37,13 @@ $curl -X POST http://localhost:5000/check
 ```
 
 
-# Acknowledgements
-
 <!-- Links -->
 [actions]: https://github.com/sifis-home/Application-Manager/actions
 [codecov]: https://codecov.io/gh/sifis-home/Application-Manager
 [license]: LICENSES/MIT.txt
 
-<!-- Badges -->
-[actions badge]: https://github.com/sifis-home/Application-Manager/workflows/Application-Manager/badge.svg
-[codecov badge]: https://codecov.io/gh/sifis-home/Application-Manager/branch/master/graph/badge.svg
-[license badge]: https://img.shields.io/badge/license-MIT-blue.svg
-
 
 <!-- Badges -->
-[actions badge]: https://github.com/sifis-home/Application-Manager/workflows/Application-Manager/badge.svg
+[actions badge]: https://github.com/sifis-home/Application-Manager/workflows/application-manager/badge.svg
 [codecov badge]: https://codecov.io/gh/sifis-home/Application-Manager/branch/master/graph/badge.svg
 [license badge]: https://img.shields.io/badge/license-MIT-blue.svg

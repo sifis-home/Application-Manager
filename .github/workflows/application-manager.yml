@@ -105,4 +105,3 @@ jobs:
 
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
-        files: coverage.lcov

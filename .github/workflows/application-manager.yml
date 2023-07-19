@@ -94,9 +94,12 @@ jobs:
       run: |
         poetry install
 
-    - name: Run tests and compute code coverage
+    - name: Run tests
       run: |
         poetry run coverage run -m pytest
+        
+    - name: Compute code coverage
+      run: |
         poetry run coverage report -m
 
     - name: Upload Coverage to Codecov

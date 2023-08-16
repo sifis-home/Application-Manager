@@ -12,7 +12,12 @@ def test_handle_pull_image():
     expected_output = "Image pulled successfully."
     with patch("app_dht.pull_image", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_pull_image(topic_name, uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_pull_image(
+                topic_name,
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -22,7 +27,12 @@ def test_handle_start_container():
     expected_output = "Container started successfully."
     with patch("app_dht.start_container", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_start_container(topic_name, uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_start_container(
+                topic_name,
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -32,7 +42,12 @@ def test_handle_stop_container():
     expected_output = "Container stopped successfully."
     with patch("app_dht.stop_container", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_stop_container(topic_name, uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_stop_container(
+                topic_name,
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -64,7 +79,12 @@ def test_handle_remove_container():
     expected_output = "Container removed successfully."
     with patch("app_dht.remove_container", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_remove_container(topic_name, uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_remove_container(
+                topic_name,
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -93,7 +113,12 @@ def test_handle_remove_image():
     expected_output = "Image removed successfully."
     with patch("app_dht.remove_image", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_remove_image(topic_name, uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_remove_image(
+                topic_name,
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 
@@ -127,7 +152,11 @@ def test_handle_list_containers():
     expected_output = "List of containers: container1, container2, container3"
     with patch("app_dht.list_containers", return_value=expected_output):
         with patch("sys.stdout", new=StringIO()) as fake_output:
-            catch_topic.handle_list_containers(uuid="my_uuid", requestor_id="my_requestor_id", request_id="my_request_id")
+            catch_topic.handle_list_containers(
+                uuid="my_uuid",
+                requestor_id="my_requestor_id",
+                request_id="my_request_id",
+            )
             output = fake_output.getvalue().strip()
             assert output == expected_output
 

@@ -42,8 +42,13 @@ $curl -X POST http://localhost:5000/check
 [codecov]: https://codecov.io/gh/sifis-home/Application-Manager
 [license]: LICENSES/MIT.txt
 
+<<<<<<< HEAD
 
 <!-- Badges -->
 [actions badge]: https://github.com/sifis-home/Application-Manager/workflows/application-manager/badge.svg
+=======
+<!-- Badges -->
+[actions badge]: https://github.com/sifis-home/Application-Manager/workflows/Application-Manager/badge.svg
+>>>>>>> 25fd783 (Create send_data.py)
 [codecov badge]: https://codecov.io/gh/sifis-home/Application-Manager/branch/master/graph/badge.svg
 [license badge]: https://img.shields.io/badge/license-MIT-blue.svg

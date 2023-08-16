@@ -1,9 +1,11 @@
 import json
+import unittest.mock
 from io import StringIO
 from unittest.mock import patch
 
 import pytest
 
+import app_dht
 import catch_topic
 
 
@@ -159,6 +161,29 @@ def test_handle_list_containers():
             )
             output = fake_output.getvalue().strip()
             assert output == expected_output
+
+
+import unittest
+
+import mock
+
+
+class TestListContainers(unittest.TestCase):
+    @mock.patch("app_dht.list_containers")
+    def test_list_containers(self, mock_list_containers):
+        mock_list_containers.return_value = [
+            "container_1 (container_1)",
+            "container_2 (container_2)",
+        ]
+
+        app_dht.list_containers(
+            uuid="1234567890", requestor_id="1", request_id="1"
+        )
+
+        self.assertEqual(
+            mock_list_containers.call_args,
+            mock.call(uuid="1234567890", requestor_id="1", request_id="1"),
+        )
 
 
 if __name__ == "__main__":

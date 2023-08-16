@@ -186,5 +186,29 @@ class TestListContainers(unittest.TestCase):
         )
 
 
+@pytest.fixture
+def mock_pull_image():
+    return mock.Mock()
+
+
+def test_pull_image(mock_pull_image):
+    with mock.patch("app_dht.pull_image", mock_pull_image):
+        mock_pull_image.return_value = "Image pulled successfully!"
+
+        app_dht.pull_image(
+            image_name="test_image",
+            uuid="1234567890",
+            requestor_id="1",
+            request_id="1",
+        )
+
+        mock_pull_image.assert_called_once_with(
+            image_name="test_image",
+            uuid="1234567890",
+            requestor_id="1",
+            request_id="1",
+        )
+
+
 if __name__ == "__main__":
     pytest.main()

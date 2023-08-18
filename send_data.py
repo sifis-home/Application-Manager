@@ -56,7 +56,7 @@ def publish_containers_list_on_dht(
     ws_req = {
         "RequestPostTopicUUID": {
             "topic_name": "SIFIS:application_manager_" + operation,
-            "topic_uuid": "application_manager_" + uuid,
+            "topic_uuid": uuid,
             "value": {
                 "operation": operation,
                 "requestor_id": str(requestor_id),

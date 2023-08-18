@@ -210,5 +210,36 @@ def test_pull_image(mock_pull_image):
         )
 
 
+import pytest
+import mock
+
+
+import pytest
+import mock
+
+from send_data import send_data
+
+def test_send_data(mock_publish_data):
+    mock_publish_data.return_value = "Data Sent"
+
+    send_data(
+        image_name="test_image",
+        operation="create_container",
+        uuid="1234567890",
+        requestor_id="1",
+        request_id="1",
+    )
+
+    mock_publish_data.assert_called_once_with(
+        image_name="test_image",
+        operation="create_container",
+        uuid="1234567890",
+        requestor_id="1",
+        request_id="1",
+    )
+
+
+
+
 if __name__ == "__main__":
     pytest.main()

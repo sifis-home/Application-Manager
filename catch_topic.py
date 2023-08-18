@@ -83,8 +83,8 @@ def on_message(ws, message):
         if topic_name == "SIFIS:app_manager":
             if "value" in json_message:
                 topic_value = json_message["value"]
-                requestor_id = json_message["requestor_id"]
-                request_id = json_message["request_id"]
+                requestor_id = topic_value["requestor_id"]
+                request_id = topic_value["request_id"]
                 if "operation" in topic_value:
                     operation = topic_value["operation"]
                     if operation == "pull_image":

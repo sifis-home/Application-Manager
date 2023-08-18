@@ -6,6 +6,6 @@ RUN pip install --no-cache-dir -r /requirements.txt
 
 ADD *.py /
 
-ENTRYPOINT ["python3", "/catch_topic.py"]
+ENTRYPOINT ["/usr/local/bin/python3", "/catch_topic.py"]
 
 

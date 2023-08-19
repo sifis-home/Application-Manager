@@ -1,2 +1,3 @@
 docker
 websocket-client
+requests

@@ -1,9 +1,0 @@
-[broker]
-http_port = 3000
-
-[broker.cache]
-url = "sqlite://root/sifis-db.sqlite"
-table = "domo_data"
-persistent = true
-shared_key = "712d9bcc6e31e990d4ee888af0dba1c11c56be4959606c8a913a3db5d93c7a2c"
-loopback = false

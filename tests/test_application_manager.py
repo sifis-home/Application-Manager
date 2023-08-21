@@ -120,6 +120,18 @@ class TestAppDHT(unittest.TestCase):
         # Since the function returns a string in this case, we can simply assert its truthiness.
         assert result, "Expected a truthy result"
 
+    def test_remove_container(self):
+        """Test the remove_container function."""
+        container_id = (
+            "valid_container_id"  # Replace with an actual valid container ID
+        )
+
+        # Call the remove_container function.
+        result = app_dht.remove_container(container_id)
+
+        # Since the function returns a string in this case, we can simply assert its truthiness.
+        assert result, "Expected a truthy result"
+
 
 if __name__ == "__main__":
     unittest.main(argv=["first-arg-is-ignored", "-v"])

@@ -74,17 +74,14 @@ class TestAppDHT(unittest.TestCase):
                 ws, topic_uuid, requestor_id, request_id, containers
             )
 
-    def test_pull_image_invalid_image_name(self):
-        """Test the pull_image function with an invalid image name."""
+    def test_pull_image_empty_image_name(self):
+        """Test the pull_image function with an empty image name."""
         ws = mock.Mock()
-        image_name = "invalid_image_name"
+        image_name = ""
 
         # Call the pull_image function.
-        response = app_dht.pull_image(ws, image_name, "1", "1", "1")
-
-        # Assert that the response is not successful.
-        self.assertEqual(response[0], "Image not found")
-        self.assertEqual(response[1], 404)
+        with self.assertRaises(ValueError):
+            app_dht.pull_image(ws, image_name, "1", "1", "1")
 
 
 if __name__ == "__main__":

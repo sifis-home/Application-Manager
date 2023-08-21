@@ -57,6 +57,8 @@ def update_dht_list(ws, image_name):
 
 
 def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
+    if image_name == "":
+        raise ValueError("Image name cannot be empty")
     if image_name:
         try:
             client.images.pull(image_name)

@@ -11,9 +11,9 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3 :: Only",
 ]
-include = ["README.md", "LICENSE.md", "application-manager/data/*"]
+include = ["README.md", "LICENSE.md", "application_manager/data/*"]
 packages = [
-    { include = "application-manager" },
+    { include = "application_manager" },
 ]
 
 [tool.poetry.dependencies]

@@ -9,6 +9,7 @@ import application_manager.app_dht as app_dht
 class TestAppDHT(unittest.TestCase):
     @mock.patch("application_manager.app_dht.request_list")
     def test_update_dht_list_connection_refused(self, mock_request_list):
+        """Test the update_dht_list function with a connection refused error."""
         # Mocking WebSocket object
         mock_ws = mock.Mock()
 

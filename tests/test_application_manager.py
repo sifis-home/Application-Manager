@@ -26,33 +26,6 @@ class TestAppDHT(unittest.TestCase):
         with self.assertRaises(requests.exceptions.ConnectionError):
             app_dht.update_dht_list(mock_ws, mock_message)
 
-    def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
-        """Pull an image from the DHT.
-
-        Args:
-            ws: The websocket object.
-            image_name: The name of the image to pull.
-            topic_uuid: The UUID of the topic.
-            requestor_id: The ID of the requestor.
-            request_id: The ID of the request.
-
-        Returns:
-            A string representing the status of the pull operation.
-        """
-        # Try to get the response from the server
-        try:
-            response = requests.get(api_url + "topic_name/" + topic_name)
-        except requests.exceptions.ConnectionError:
-            # If the connection fails, return an error
-            raise ConnectionError()
-
-        # If the response is successful, return the image name
-        if response.status_code == 200:
-            return image_name
-
-        # If the response is not successful, return an error
-        return "Error"
-
     def test_publish_success(self):
         """Test the publish function with success."""
         ws = mock.Mock()
@@ -83,6 +56,35 @@ class TestAppDHT(unittest.TestCase):
         ws.send(data)
         # Assert that the ws mock was called with the correct arguments.
         ws.send.assert_called_with(data)
+
+    def test_publish_failure(self):
+        """Test the publish function with failure."""
+        ws = mock.Mock()
+        topic_uuid = "1"
+        requestor_id = "1"
+        request_id = "1"
+        containers = ["ubuntu"]
+
+        # Set the expected behavior of the ws mock.
+        ws.send.side_effect = Exception("Error sending message")
+
+        # Call the publish function.
+        with self.assertRaises(Exception):
+            app_dht.publish(
+                ws, topic_uuid, requestor_id, request_id, containers
+            )
+
+    def test_pull_image_invalid_image_name(self):
+        """Test the pull_image function with an invalid image name."""
+        ws = mock.Mock()
+        image_name = "invalid_image_name"
+
+        # Call the pull_image function.
+        response = app_dht.pull_image(ws, image_name, "1", "1", "1")
+
+        # Assert that the response is not successful.
+        self.assertEqual(response[0], "Image not found")
+        self.assertEqual(response[1], 404)
 
 
 if __name__ == "__main__":

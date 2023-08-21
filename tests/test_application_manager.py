@@ -101,6 +101,25 @@ class TestAppDHT(unittest.TestCase):
         else:
             self.fail("The response is empty")
 
+    def test_stop_container(self):
+        """Test the stop_container function."""
+        container_id = (
+            "valid_container_id"  # Replace with an actual valid container ID
+        )
+        topic_uuid = "valid_topic_uuid"  # Replace with a valid topic UUID
+        request_id = "valid_request_id"  # Replace with a valid request ID
+        requestor_id = (
+            "valid_requestor_id"  # Replace with a valid requestor ID
+        )
+
+        # Call the stop_container function.
+        result = app_dht.stop_container(
+            container_id, topic_uuid, request_id, requestor_id
+        )
+
+        # Since the function returns a string in this case, we can simply assert its truthiness.
+        assert result, "Expected a truthy result"
+
 
 if __name__ == "__main__":
     unittest.main(argv=["first-arg-is-ignored", "-v"])

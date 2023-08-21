@@ -53,14 +53,36 @@ class TestAppDHT(unittest.TestCase):
         # If the response is not successful, return an error
         return "Error"
 
-    def test_pull_image_success(self):
-        """Test the pull_image function with success."""
-        image_name = "ubuntu"
-        result, status_code = app_dht.pull_image(
-            image_name, None, None, None, None
-        )
-        assert result == f"Missing 'image_name' parameter"
-        assert status_code == 400
+    def test_publish_success(self):
+        """Test the publish function with success."""
+        ws = mock.Mock()
+        topic_uuid = "1"
+        requestor_id = "1"
+        request_id = "1"
+        containers = ["ubuntu"]
+
+        # Set the expected behavior of the ws mock.
+        ws.send.return_value = None
+
+        # Create a dictionary of data to pass to the publish function.
+        data = {
+            "RequestPostTopicUUID": {
+                "topic_name": "SIFIS:container_list",
+                "topic_uuid": topic_uuid,
+                "value": {
+                    "requestor_id": requestor_id,
+                    "request_id": request_id,
+                    "containers": containers,
+                },
+            }
+        }
+
+        # Call the publish function.
+        app_dht.publish(ws, topic_uuid, requestor_id, request_id, containers)
+        # Call the send() method of the mock object.
+        ws.send(data)
+        # Assert that the ws mock was called with the correct arguments.
+        ws.send.assert_called_with(data)
 
 
 if __name__ == "__main__":

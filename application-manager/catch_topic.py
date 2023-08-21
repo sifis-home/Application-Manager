@@ -1,8 +1,7 @@
 import json
 
-import websocket
-
 import app_dht
+import websocket
 
 
 def handle_pull_image(ws, topic_name, topic_uuid):

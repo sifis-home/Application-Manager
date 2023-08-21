@@ -3,10 +3,9 @@ import unittest.mock
 from io import StringIO
 from unittest.mock import patch
 
-import pytest
-
 import app_dht
 import catch_topic
+import pytest
 
 
 def test_handle_pull_image():
@@ -210,14 +209,10 @@ def test_pull_image(mock_pull_image):
         )
 
 
-import pytest
 import mock
-
-
 import pytest
-import mock
-
 from send_data import send_data
+
 
 def test_send_data(mock_publish_data):
     mock_publish_data.return_value = "Data Sent"
@@ -237,8 +232,6 @@ def test_send_data(mock_publish_data):
         requestor_id="1",
         request_id="1",
     )
-
-
 
 
 if __name__ == "__main__":

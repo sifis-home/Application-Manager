@@ -132,6 +132,19 @@ class TestAppDHT(unittest.TestCase):
         # Since the function returns a string in this case, we can simply assert its truthiness.
         assert result, "Expected a truthy result"
 
+    def test_request_list(self):
+        """Test the request_list function."""
+        ws = mock.Mock()
+        message = '{"topic_name": "SIFIS:container_list", "topic_uuid": "valid_topic_uuid", "value": {"requestor_id": "valid_requestor_id", "request_id": "valid_request_id", "containers": ["ubuntu"]}}'
+        image_name = "new_image"
+
+        # Call the request_list function.
+        result = app_dht.request_list(ws, message, image_name)
+        print(result)
+
+        # Since the function doesn't return anything meaningful in this case, we can assert True.
+        assert result is None
+
 
 if __name__ == "__main__":
     unittest.main(argv=["first-arg-is-ignored", "-v"])

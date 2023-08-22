@@ -21,7 +21,7 @@ def publish(ws, topic_uuid, requestor_id, request_id, containers):
         }
     }
     ws.send(json.dumps(ws_req))
-    print("[!] Container List has been updated")
+    print("\n[!] Container List has been updated")
     return
 
 
@@ -38,22 +38,23 @@ def request_list(ws, message, image_name):
             containers = topic_value["containers"]
             containers.append(image_name)
             publish(ws, topic_uuid, requestor_id, request_id, containers)
-            print("Active Containers: " + str(containers))
+            print("\n[!] Active Containers: " + str(containers) + "\n")
 
 
 def update_dht_list(ws, image_name):
     topic_name = "SIFIS:container_list"
-    response = requests.get(api_url + "topic_name/" + topic_name)
-    message = str(response.json()[0])
-    message = message.replace("'", '"')
-    if message is None:
+    try:
+        response = requests.get(api_url + "topic_name/" + topic_name)
+        message = str(response.json()[0])
+        message = message.replace("'", '"')
+        request_list(ws, message, image_name)
+    except IndexError:
+        print("\n[!] Update List, the list is empty")
         topic_uuid = "Pippo"
         request_id = "1"
         requestor_id = "1"
         containers = [image_name]
         publish(ws, topic_uuid, requestor_id, request_id, containers)
-    else:
-        request_list(ws, message, image_name)
 
 
 def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
@@ -79,7 +80,10 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
                 + topic_uuid,
                 json=pulling_data,
             )
-            return f"Image {image_name} pulled successfully!"
+
+            print(f"[!] Image {image_name} pulled successfully!")
+            start_container(image_name, topic_uuid, requestor_id, request_id)
+            return "\n Pulling and Starting operation completed ..."
         except docker.errors.APIError as e:
             pulling_data = {
                 "requestor_id": requestor_id,
@@ -101,11 +105,40 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
         return "Missing 'image_name' parameter", 400
 
 
-def start_container(image_name):
+def start_container(image_name, topic_uuid, requestor_id, request_id):
     if image_name:
         try:
-            container = client.containers.run(image_name, detach=True)
-            return f"Container {container.id} started successfully!"
+            print("\n[!] Starting: " + image_name)
+            topic_name = "SIFIS:application_manager_starting_image"
+            container = client.containers.run(
+                image_name,
+                detach=True,
+                network_mode="host",  #  --net=host
+                privileged=True,  #  --privileged
+                volumes={
+                    "/var/run/docker.sock": {
+                        "bind": "/var/run/docker.sock",
+                        "mode": "rw",
+                    }
+                },  # volume
+            )
+            print(f"\n[!] Container {container.id} started successfully!")
+            data = {
+                "requestor_id": requestor_id,
+                "request_id": request_id,
+                "image": image_name,
+                "operation": "starting image",
+                "container_id": container.id,
+            }
+            local_response = requests.post(
+                api_url
+                + "topic_name/"
+                + topic_name
+                + "/topic_uuid/"
+                + topic_uuid,
+                json=data,
+            )
+            return
         except docker.errors.ImageNotFound as e:
             return f"Image {image_name} not found: {e}", 404
         except docker.errors.APIError as e:
@@ -207,11 +240,12 @@ def list_containers(topic_uuid, requestor_id, request_id, image_name):
         api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
         json=_list,
     )
+    """
     remote_host = "https://yggio.sifis-home.eu:3000/dht-insecure/"
     yggio_response = requests.post(
         remote_host + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
         json=_list,
         verify=False,
     )
-    print("YGGIO Response: " + str(yggio_response.content) + "\n\n")
+    """
     return _list

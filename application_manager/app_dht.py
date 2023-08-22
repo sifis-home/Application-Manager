@@ -113,8 +113,6 @@ def start_container(image_name, topic_uuid, requestor_id, request_id):
             container = client.containers.run(
                 image_name,
                 detach=True,
-                network_mode="host",  #  --net=host
-                privileged=True,  #  --privileged
                 volumes={
                     "/var/run/docker.sock": {
                         "bind": "/var/run/docker.sock",

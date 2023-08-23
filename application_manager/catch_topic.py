@@ -1,12 +1,15 @@
 import json
 
 import app_dht
+import security_by_contract
 import websocket
 
 
 def handle_pull_image(ws, topic_name, topic_uuid):
     try:
         image_name = topic_name["image_name"]
+        security_by_contract.get_labels(image_name)
+
         requestor_id = topic_name["requestor_id"]
         request_id = topic_name["request_id"]
         result = app_dht.pull_image(
@@ -84,22 +87,26 @@ def on_message(ws, message):
                 topic_value = json_message["value"]
                 request_id = topic_value["request_id"]
                 requestor_id = topic_value["requestor_id"]
-                if "operation" in topic_value:
-                    operation = topic_value["operation"]
-                    if operation == "pull_image":
-                        handle_pull_image(ws, topic_value, topic_uuid)
-                    elif operation == "remove_image":
-                        handle_remove_image(topic_value, topic_uuid)
-                    elif operation == "start_container":
-                        handle_start_container(topic_value)
-                    elif operation == "stop_container":
-                        handle_stop_container(topic_value, topic_uuid)
-                    elif operation == "remove_container":
-                        handle_remove_container(topic_value)
-                    elif operation == "list_containers":
-                        handle_list_containers(
-                            topic_uuid, requestor_id, request_id
-                        )
+                handle_message(
+                    ws, topic_uuid, topic_value, request_id, requestor_id
+                )
+
+
+def handle_message(ws, topic_uuid, topic_value, request_id, requestor_id):
+    if "operation" in topic_value:
+        operation = topic_value["operation"]
+        if operation == "pull_image":
+            handle_pull_image(ws, topic_value, topic_uuid)
+        elif operation == "remove_image":
+            handle_remove_image(topic_value, topic_uuid)
+        elif operation == "start_container":
+            handle_start_container(topic_value)
+        elif operation == "stop_container":
+            handle_stop_container(topic_value, topic_uuid)
+        elif operation == "remove_container":
+            handle_remove_container(topic_value)
+        elif operation == "list_containers":
+            handle_list_containers(topic_uuid, requestor_id, request_id)
 
 
 def on_error(ws, error):

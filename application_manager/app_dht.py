@@ -217,7 +217,7 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
     try:
         print("[!] Removing Image : " + image_name)
         topic_name = "SIFIS:application_manager_remove_image"
-        #list_containers(topic_uuid, requestor_id, request_id, image_name)
+        # list_containers(topic_uuid, requestor_id, request_id, image_name)
         removing_info = {
             "requestor_id": requestor_id,
             "request_id": request_id,
@@ -229,7 +229,7 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
         requests.post(
             api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
             json=removing_info,
-        )        
+        )
         print("dopo di inviare immagine rimossa")
         list_containers(topic_uuid, requestor_id, request_id, image_name)
         print("dopo list")

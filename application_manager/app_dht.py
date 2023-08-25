@@ -5,7 +5,7 @@ import requests
 
 client = docker.from_env()
 
-api_url = "http://localhost:3000/"
+api_url = "http://sifis-device4.iit.cnr.it:3000/"
 
 
 def publish(ws, topic_uuid, requestor_id, request_id, containers):
@@ -36,18 +36,27 @@ def request_list(ws, message, image_name):
             requestor_id = topic_value["requestor_id"]
             request_id = topic_value["request_id"]
             containers = topic_value["containers"]
-            containers.append(image_name)
-            publish(ws, topic_uuid, requestor_id, request_id, containers)
-            print("\n[!] Active Containers: " + str(containers) + "\n")
+            if image_name not in containers:
+                containers.append(image_name)
+                publish(ws, topic_uuid, requestor_id, request_id, containers)
+                print("\n[!] Active Containers: " + str(containers) + "\n")
+                result = "OK"
+                return result
+            else:
+                print("The App has been already installed")
+                print("\n[!] Active Containers: " + str(containers) + "\n")
+                result = "Already Installed"
+                return result
 
 
 def update_dht_list(ws, image_name):
     topic_name = "SIFIS:container_list"
     try:
         response = requests.get(api_url + "topic_name/" + topic_name)
-        message = str(response.json()[0])
+        message = str(response.json()[-1])
         message = message.replace("'", '"')
-        request_list(ws, message, image_name)
+        result = request_list(ws, message, image_name)
+        return result
     except IndexError:
         print("\n[!] Update List, the list is empty")
         topic_uuid = "Pippo"
@@ -58,32 +67,39 @@ def update_dht_list(ws, image_name):
 
 
 def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
+    prefix = "ghcr.io/sifis-home/"
     if image_name == "":
         raise ValueError("Image name cannot be empty")
+    if prefix not in image_name:
+        image_name = prefix + image_name
     if image_name:
         try:
-            client.images.pull(image_name)
-            update_dht_list(ws, image_name)
             topic_name = "SIFIS:application_manager_pull_image"
-            pulling_data = {
-                "requestor_id": requestor_id,
-                "request_id": request_id,
-                "pulled_image": image_name,
-                "operation": "pull image",
-                "result": "successfull",
-            }
-            requests.post(
-                api_url
-                + "topic_name/"
-                + topic_name
-                + "/topic_uuid/"
-                + topic_uuid,
-                json=pulling_data,
-            )
+            result = update_dht_list(ws, image_name)
+            if result != "Already Installed":
+                client.images.pull(image_name)
+                # update_dht_list(ws, image_name)
+                pulling_data = {
+                    "requestor_id": requestor_id,
+                    "request_id": request_id,
+                    "pulled_image": image_name,
+                    "operation": "pull image",
+                    "result": "successfull",
+                }
+                requests.post(
+                    api_url
+                    + "topic_name/"
+                    + topic_name
+                    + "/topic_uuid/"
+                    + topic_uuid,
+                    json=pulling_data,
+                )
 
-            print(f"[!] Image {image_name} pulled successfully!")
-            start_container(image_name, topic_uuid, requestor_id, request_id)
-            return "\n Pulling and Starting operation completed ..."
+                print(f"[!] Image {image_name} pulled successfully!")
+                start_container(
+                    image_name, topic_uuid, requestor_id, request_id
+                )
+                return "\n Pulling and Starting operation completed ..."
         except docker.errors.APIError as e:
             pulling_data = {
                 "requestor_id": requestor_id,
@@ -114,8 +130,8 @@ def start_container(image_name, topic_uuid, requestor_id, request_id):
                 image_name,
                 detach=True,
                 volumes={
-                    "/var/run/docker.sock": {
-                        "bind": "/var/run/docker.sock",
+                    "/var/run/sifis.sock": {
+                        "bind": "/var/run/sifis.sock",
                         "mode": "rw",
                     }
                 },  # volume
@@ -197,8 +213,9 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
         return "Missing 'image_name' parameter", 400
 
     try:
-        client.images.remove(image_name, force=True)
+        print("[!] Removing Image : " + image_name)
         topic_name = "SIFIS:application_manager_remove_image"
+        list_containers(topic_uuid, requestor_id, request_id, image_name)
         removing_info = {
             "requestor_id": requestor_id,
             "request_id": request_id,
@@ -211,6 +228,7 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
             json=removing_info,
         )
         list_containers(topic_uuid, requestor_id, request_id, image_name)
+        client.images.remove(image_name, force=True)
         return f"Image {image_name} removed successfully!"
     except docker.errors.ImageNotFound as e:
         return f"Image {image_name} not found: {e}", 404
@@ -221,13 +239,13 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
 def list_containers(topic_uuid, requestor_id, request_id, image_name):
     topic_name = "SIFIS:container_list"
     response = requests.get(api_url + "topic_name/" + topic_name)
-    message = str(response.json()[0])
+    message = str(response.json()[-1])
     message = message.replace("'", '"')
     if "value" in str(message):
         json_message = json.loads(message)
         topic_value = json_message["value"]
         containers = topic_value["containers"]
-        if image_name != None:
+        if image_name in containers:
             containers.remove(image_name)
         _list = {
             "requestor_id": requestor_id,

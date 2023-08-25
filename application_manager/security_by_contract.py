@@ -1,6 +1,45 @@
+import base64
+import datetime
 import json
 import os
 import subprocess
+import uuid
+from pathlib import Path
+
+import requests
+
+REGISTERED = False
+websocket_uri = "http://sifis-device4.iit.cnr.it:3000/"
+
+
+def get_json_register():
+    ws_req = {
+        "timestamp": int(datetime.datetime.now().timestamp() * 1000),
+        "command": {
+            "command_type": "pep-command",
+            "value": {
+                "message": {
+                    "purpose": "REGISTER",
+                    "message_id": str(uuid.uuid1()),
+                    "sub_topic_name": "application_manager_registration",
+                    "sub_topic_uuid": "application_manager_registration_uuid",
+                },
+                "id": "pep-application_manager",
+                "topic_name": "topic-name",
+                "topic_uuid": "topic-uuid-the-ucs-is-subscribed-to",
+            },
+        },
+    }
+    print("\n---------- REGISTRATION ATTEMPT ------------\n")
+    message_id = ws_req["command"]["value"]["message"]["message_id"]
+    return ws_req, message_id
+
+
+def register():
+    req, id = get_json_register()
+    requests.post(websocket_uri + "pub", json=req)
+    REGISTERED = True
+    return id
 
 
 def extract_manifest_json(output):
@@ -50,6 +89,39 @@ def run_cargo_command(json_filename):
         print("Command output (stderr):", e.stderr)
 
 
+def xml_to_base64(xml_file_path):
+    try:
+        request = Path(xml_file_path).read_text()
+        print("XACML request used:")
+        b = base64.b64encode(bytes(request, "utf-8"))  # bytes
+        request64 = b.decode("utf-8")
+
+        return request64
+    except Exception as e:
+        return str(e)
+
+
+def organize_json(request_base64):
+    ws_req = {
+        "timestamp": int(datetime.datetime.now().timestamp() * 1000),
+        "command": {
+            "command_type": "pep-command",
+            "value": {
+                "message": {
+                    "purpose": "TRY",
+                    "message_id": str(uuid.uuid1()),
+                    "request": request_base64,
+                    "policy": None,
+                },
+                "id": "pep-application_manager",
+                "topic_name": "topic-name",
+                "topic_uuid": "topic-uuid-the-ucs-is-subscribed-to",
+            },
+        },
+    }
+    return ws_req
+
+
 def get_labels(image_name):
     # Name of the file to execute
     script_file = "application_manager/get-labels.sh"
@@ -58,32 +130,54 @@ def get_labels(image_name):
 
     try:
         # Execute the shell command with the given image name as an argument
-        completed_process = subprocess.run(
-            ["bash", script_file, sifis_prefix + image_name, version],
-            stdout=subprocess.PIPE,
-            text=True,
-            check=True,
+        manifest_data = _extract_labels(
+            image_name, script_file, sifis_prefix, version
         )
-
-        # Get the output of the execution
-        output = completed_process.stdout
-
-        # Extract the JSON under the "manifest" label
-        manifest_json = extract_manifest_json(output)
-
-        # Parse the extracted JSON
-        manifest_data = json.loads(manifest_json)
-
-        # Print or process the extracted JSON data
-        print("Extracted Manifest JSON:")
-        print(json.dumps(manifest_data, indent=2))
         json_filename = "manifest_" + image_name + ".json"
         path = "sifis-xacml/data/"
         save_manifest_to_file(manifest_data, path + json_filename)
         run_cargo_command(json_filename)
-        return manifest_data
+        formatted_json, message_id = handle_xcml_request(image_name)
+        requests.post(websocket_uri + "pub", json=formatted_json)
+        return json_filename, message_id
     except subprocess.CalledProcessError as e:
         print("Error during script execution:", e)
 
 
+def _extract_labels(image_name, script_file, sifis_prefix, version):
+    completed_process = subprocess.run(
+        ["bash", script_file, sifis_prefix + image_name, version],
+        stdout=subprocess.PIPE,
+        text=True,
+        check=True,
+    )
+
+    # Get the output of the execution
+    output = completed_process.stdout
+
+    # Extract the JSON under the "manifest" label
+    manifest_json = extract_manifest_json(output)
+
+    # Parse the extracted JSON
+    manifest_data = json.loads(manifest_json)
+
+    # Print or process the extracted JSON data
+    print("Extracted Manifest JSON:")
+    print(json.dumps(manifest_data, indent=2))
+    return manifest_data
+
+
+def handle_xcml_request(image_name):
+    source_path = "sifis-xacml/manifest_"
+    file_path = source_path + image_name + "/request_1.xml"
+    base64_content = xml_to_base64(file_path)
+    organized_json = organize_json(base64_content)
+    print(json.dumps(organized_json, indent=2))
+    message_id = organized_json["command"]["value"]["message"]["message_id"]
+    return organized_json, message_id
+
+
+"""
+register()
 get_labels("3pa-lamp-amd64")
+"""

@@ -18,7 +18,7 @@ def on_open(ws):
 
 def publish():
     ws = websocket.WebSocketApp(
-        "ws://localhost:3000/ws",
+        "ws://sifis-device4.iit.cnr.it:3000/ws",
         on_open=on_open,
         on_error=on_error,
         on_close=on_close,
@@ -35,7 +35,7 @@ def publish():
                 "operation": "pull_image",
                 "requestor_id": "1",
                 "request_id": "1",
-                "image_name": "ghcr.io/sifis-home/application-manager:latest",
+                "image_name": "3pa-lamp-amd64",  # ghcr.io/sifis-home/
             },
         }
     }

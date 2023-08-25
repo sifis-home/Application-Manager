@@ -5,6 +5,7 @@ COPY requirements.txt /
 RUN pip install --no-cache-dir -r /requirements.txt
 
 ADD application_manager/*.py /
+ADD application_manager/get-labels.sh /
 
 ADD run_application_manager/run_manager.sh /
 #ADD services/leader_file.txt /  uncomment this to test the run_manager

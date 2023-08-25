@@ -77,8 +77,10 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
             topic_name = "SIFIS:application_manager_pull_image"
             result = update_dht_list(ws, image_name)
             if result != "Already Installed":
+                print("ciao")
                 client.images.pull(image_name)
                 # update_dht_list(ws, image_name)
+                print("pippo")
                 pulling_data = {
                     "requestor_id": requestor_id,
                     "request_id": request_id,
@@ -215,7 +217,7 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
     try:
         print("[!] Removing Image : " + image_name)
         topic_name = "SIFIS:application_manager_remove_image"
-        list_containers(topic_uuid, requestor_id, request_id, image_name)
+        #list_containers(topic_uuid, requestor_id, request_id, image_name)
         removing_info = {
             "requestor_id": requestor_id,
             "request_id": request_id,
@@ -223,11 +225,14 @@ def remove_image(image_name, topic_uuid, request_id, requestor_id):
             "operation": "remove image",
             "result": "successfull",
         }
+        print("prima di inviare immagine rimossa")
         requests.post(
             api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
             json=removing_info,
-        )
+        )        
+        print("dopo di inviare immagine rimossa")
         list_containers(topic_uuid, requestor_id, request_id, image_name)
+        print("dopo list")
         client.images.remove(image_name, force=True)
         return f"Image {image_name} removed successfully!"
     except docker.errors.ImageNotFound as e:

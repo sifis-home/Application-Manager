@@ -1,0 +1,3 @@
+[submodule "sifis-xacml"]
+    path = sifis-xacml
+    url = https://github.com/sifis-home/sifis-xacml.git

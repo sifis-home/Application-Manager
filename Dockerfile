@@ -13,6 +13,5 @@ ADD run_application_manager/run_manager.sh /
 RUN chmod +x /run_manager.sh
 ENTRYPOINT ["./run_manager.sh"]
 
-#ENTRYPOINT ["/usr/local/bin/python3", "/catch_topic.py"]
 
 

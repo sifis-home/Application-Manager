@@ -1,7 +1,6 @@
 import unittest
 from unittest import mock
 
-
 import application_manager.app_dht as app_dht
 
 

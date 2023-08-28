@@ -15,6 +15,7 @@ def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
     global REGISTERED, session_id
     try:
         image_name = topic_name["image_name"]
+        image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(":latest", "")
         print("[!] Recovering App LABELS\n")
         _, app_id = security_by_contract.get_labels(image_name)
         session_id = app_id
@@ -63,6 +64,10 @@ def handle_pull_image():
         topic_uuid = params["topic_uuid"]
         try:
             image_name = topic_value["image_name"]
+            try:
+                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(":latest", "")
+            except:
+                pass
             requestor_id = topic_value["requestor_id"]
             request_id = topic_value["request_id"]
             result = app_dht.pull_image(

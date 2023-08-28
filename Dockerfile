@@ -2,8 +2,8 @@
 FROM python:3.8
 
 COPY requirements.txt /
-RUN apt-get update && \
-    apt-get install jq
+RUN apt-get -y update && \
+    apt-get -y install jq
 RUN pip install --no-cache-dir -r /requirements.txt
 
 

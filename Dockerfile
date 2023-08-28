@@ -2,8 +2,10 @@
 FROM python:3.8
 
 COPY requirements.txt /
+RUN apt-get update && \
+    apt-get install jq
 RUN pip install --no-cache-dir -r /requirements.txt
-RUN apt-get install jq
+
 
 ADD application_manager /application_manager
 #ADD application_manager/*.py /

@@ -40,7 +40,7 @@ def notify_mobile_application(
         + image_name
         + " cannot be installed, the operation is NOT permitted by Usage Control"
     )
-    address = "http://localhost:3000/"
+    address = "http://146.48.89.28:3000/"
     notification_data = {
         "requestor_id": requestor_id,
         "request_id": request_id,
@@ -268,7 +268,7 @@ def on_open(ws):
 
 if __name__ == "__main__":
     ws = websocket.WebSocketApp(
-        "ws://localhost:3000/ws",
+        "ws://146.48.89.28:3000/ws",
         on_open=on_open,
         on_message=on_message,
         on_error=on_error,

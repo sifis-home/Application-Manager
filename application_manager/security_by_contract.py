@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 REGISTERED = False
-websocket_uri = "http://localhost:3000/"
+websocket_uri = "http://146.48.89.28:3000/"
 
 
 def get_json_register():

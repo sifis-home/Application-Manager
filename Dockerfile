@@ -4,6 +4,10 @@ FROM python:3.8
 COPY requirements.txt /
 RUN apt-get -y update && \
     apt-get -y install jq
+
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
+    echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
+
 RUN pip install --no-cache-dir -r /requirements.txt
 
 
@@ -17,6 +21,3 @@ ADD sifis-xacml /sifis-xacml
 
 RUN chmod +x /run_manager.sh
 ENTRYPOINT ["./run_manager.sh"]
-
-
-

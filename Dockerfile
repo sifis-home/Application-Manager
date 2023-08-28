@@ -4,8 +4,9 @@ FROM python:3.8
 COPY requirements.txt /
 RUN pip install --no-cache-dir -r /requirements.txt
 
-ADD application_manager/*.py /
-ADD application_manager/get-labels.sh /
+ADD application_manager /application_manager
+#ADD application_manager/*.py /
+#ADD application_manager/get-labels.sh /application_manager
 
 ADD run_application_manager/run_manager.sh /
 ADD sifis-xacml /

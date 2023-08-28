@@ -1,6 +1,7 @@
 import json
 
 import app_dht
+import requests
 import security_by_contract
 import websocket
 
@@ -10,35 +11,45 @@ session_id = "None"
 permit_installation = False
 
 
-def UCS_request(ws, topic_name, topic_uuid):
+def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
     global REGISTERED, session_id
     try:
         image_name = topic_name["image_name"]
         print("[!] Recovering App LABELS\n")
         _, app_id = security_by_contract.get_labels(image_name)
         session_id = app_id
-        print("[!] APP_ID: " + str(session_id))
-        return
+        if session_id == "None":
+            notify_mobile_application(
+                image_name, topic_uuid, request_id, requestor_id
+            )
+        else:
+            print("[!] APP_ID: " + str(session_id))
+            return
     except Exception as e:
         print(e)
 
 
-"""
-def handle_pull_image(ws, topic_name, topic_uuid):
-    global REGISTERED, session_id
-    print("Permit Installation")
-    print(permit_installation)
-    try:
-        image_name = topic_name["image_name"]
-        requestor_id = topic_name["requestor_id"]
-        request_id = topic_name["request_id"]
-        result = app_dht.pull_image(
-            ws, image_name, topic_uuid, requestor_id, request_id
-        )
-        print(result)
-    except Exception as e:
-        print(e)
-"""
+def notify_mobile_application(
+    image_name, topic_uuid, request_id, requestor_id
+):
+    topic_name = "SIFIS:notification_message"
+    print("[!] " + notification)
+    notification = (
+        "The "
+        + image_name
+        + " cannot be installed, the operation is NOT permitted by Usage Control"
+    )
+    address = "http://sifis-device4.iit.cnr.it:3000/"
+    notification_data = {
+        "requestor_id": requestor_id,
+        "request_id": request_id,
+        "message": notification,
+    }
+    requests.post(
+        address + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
+        json=notification_data,
+    )
+    return
 
 
 def handle_pull_image():
@@ -161,6 +172,7 @@ def on_message(ws, message):
             json_message = json_message["Volatile"]
             json_value = json_message["value"]
             purpose = json_value["command"]["value"]["message"]["purpose"]
+
             if purpose == "TRY_RESPONSE":
                 print("[!] Permit Installation")
                 handle_pull_image()
@@ -212,7 +224,7 @@ def handle_message(ws, topic_uuid, topic_value, request_id, requestor_id):
         operation = topic_value["operation"]
         if operation == "pull_image":
             print("[!] Forwarding UCS Request")
-            UCS_request(ws, topic_value, topic_uuid)
+            UCS_request(ws, topic_value, topic_uuid, request_id, requestor_id)
             print("[!] Pulling Image Request")
             params = {
                 "ws": ws,

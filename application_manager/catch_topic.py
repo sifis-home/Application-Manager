@@ -191,7 +191,7 @@ def on_message(ws, message):
                 else:
                     print("[!] Application Manager is not registered to UC")
     except Exception as e:
-        print("ERROR: " + str(e))
+        #print("ERROR: " + str(e))
         pass
 
     if "Persistent" in json_message:

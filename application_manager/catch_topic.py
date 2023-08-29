@@ -15,14 +15,14 @@ def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
     global REGISTERED, session_id
     try:
         image_name = topic_name["image_name"]
-        image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(":latest", "")
+        image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(
+            ":latest", ""
+        )
         print("[!] Recovering App LABELS\n")
         _, app_id = security_by_contract.get_labels(image_name)
         session_id = app_id
         if session_id == "None":
-            notify_mobile_application(
-                image_name, topic_uuid, request_id, requestor_id
-            )
+            notify_mobile_application(message=None)
         else:
             print("[!] APP_ID: " + str(session_id))
             return
@@ -30,16 +30,37 @@ def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
         print(e)
 
 
-def notify_mobile_application(
-    image_name, topic_uuid, request_id, requestor_id
-):
+def notify_mobile_application(message):
+    global global_pull_image_params
+    params = global_pull_image_params
+
     topic_name = "SIFIS:notification_message"
+    if params is not None:
+        topic_value = params["topic_value"]
+        topic_uuid = params["topic_uuid"]
+        try:
+            image_name = topic_value["image_name"]
+            try:
+                image_name = image_name.replace(
+                    "ghcr.io/sifis-home/", ""
+                ).replace(":latest", "")
+            except:
+                pass
+            requestor_id = topic_value["requestor_id"]
+            request_id = topic_value["request_id"]
+        except Exception as e:
+            print(e)
+    if message == None:
+        notification = (
+            "The "
+            + image_name
+            + " cannot be installed, the operation is NOT permitted by Usage Control"
+        )
+    else:
+        notification = (
+            image_name + " " + message
+        )  # The application can be installed
     print("[!] " + notification)
-    notification = (
-        "The "
-        + image_name
-        + " cannot be installed, the operation is NOT permitted by Usage Control"
-    )
     address = "http://146.48.89.28:3000/"
     notification_data = {
         "requestor_id": requestor_id,
@@ -65,7 +86,9 @@ def handle_pull_image():
         try:
             image_name = topic_value["image_name"]
             try:
-                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(":latest", "")
+                image_name = image_name.replace(
+                    "ghcr.io/sifis-home/", ""
+                ).replace(":latest", "")
             except:
                 pass
             requestor_id = topic_value["requestor_id"]
@@ -179,8 +202,18 @@ def on_message(ws, message):
             purpose = json_value["command"]["value"]["message"]["purpose"]
 
             if purpose == "TRY_RESPONSE":
-                print("[!] Permit Installation")
-                handle_pull_image()
+                evaluation = json_value["command"]["value"]["message"][
+                    "evaluation"
+                ]
+                if evaluation == "NotApplicable":
+                    print("The Operation has been denied from a UCS")
+                    notify_mobile_application(message=None)
+                else:
+                    print("[!] Permit Installation")
+                    handle_pull_image()
+                    notify_mobile_application(
+                        message="Application can be installed"
+                    )
 
             if (
                 json_value["command"]["value"]["topic_name"]
@@ -196,7 +229,7 @@ def on_message(ws, message):
                 else:
                     print("[!] Application Manager is not registered to UC")
     except Exception as e:
-        #print("ERROR: " + str(e))
+        # print("ERROR: " + str(e))
         pass
 
     if "Persistent" in json_message:

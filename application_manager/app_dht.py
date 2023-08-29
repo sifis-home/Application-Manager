@@ -34,7 +34,7 @@ def request_list(ws, message, image_name):
         if "value" in json_message:
             topic_value = json_message["value"]
             requestor_id = topic_value["requestor_id"]
-            print("ImageName: " +image_name)
+            print("ImageName: " + image_name)
             request_id = topic_value["request_id"]
             containers = topic_value["containers"]
             if image_name not in containers:
@@ -79,7 +79,7 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
             result = update_dht_list(ws, image_name)
             if result != "Already Installed":
                 client.images.pull(image_name)
-                print("ImageName: " +image_name)
+                print("ImageName: " + image_name)
                 # update_dht_list(ws, image_name)
                 pulling_data = {
                     "requestor_id": requestor_id,

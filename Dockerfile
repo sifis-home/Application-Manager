@@ -7,6 +7,7 @@ RUN apt-get -y update && \
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
+    
 
 RUN pip install --no-cache-dir -r /requirements.txt
 

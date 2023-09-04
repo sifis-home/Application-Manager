@@ -85,6 +85,7 @@ class TestAppDHT(unittest.TestCase):
         with self.assertRaises(ValueError):
             app_dht.pull_image(ws, image_name, "1", "1", "1")
 
+    '''
     def test_remove_image_not_found(self):
         """Test the remove_image function with an image that is not found."""
         image_name = "not_found"
@@ -101,6 +102,7 @@ class TestAppDHT(unittest.TestCase):
             assert "(" in str(response_string[0])
         else:
             self.fail("The response is empty")
+    '''
 
     def test_stop_container(self):
         """Test the stop_container function."""

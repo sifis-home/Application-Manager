@@ -188,6 +188,21 @@ class TestAppDHT(unittest.TestCase):
             result = app_dht.update_dht_list(image_name)
         # self.assertEqual(result, "OK")
 
+    def test_valid_message(self):
+        message = {
+            "topic_name": "SIFIS:container_list",
+            "topic_uuid": "1234567890",
+        }
+        image_name = "test_image"
+        with pytest.raises(TypeError):
+            result = app_dht.request_list(message, image_name)
+
+    def test_invalid_message(self):
+        message = {}
+        image_name = "test_image"
+        with pytest.raises(TypeError):
+            result = app_dht.request_list(message, image_name)
+
     def test_remove_image_not_found(self):
         """Test the remove_image function with an image that is not found."""
         image_name = "not_found"

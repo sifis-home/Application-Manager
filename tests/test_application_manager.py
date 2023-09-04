@@ -166,6 +166,13 @@ class TestAppDHT(unittest.TestCase):
 
     '''
 
+    def test_pull_image_empty_list(self):
+        """Test the pull_image function with an empty list of containers."""
+
+        # Call the pull_image function.
+        with pytest.raises(TypeError):
+            result, status_code = app_dht.pull_image("ubuntu")
+
     def test_stop_container(self):
         """Test the stop_container function."""
         container_id = (

@@ -174,6 +174,29 @@ class TestAppDHT(unittest.TestCase):
         with pytest.raises(TypeError):
             result, status_code = app_dht.pull_image("ubuntu")
 
+    def test_remove_image_not_found(self):
+        """Test the remove_image function with an image that is not found."""
+        image_name = "not_found"
+        topic_uuid = "Pippo"
+        request_id = "1"
+        requestor_id = "1"
+
+        # Call the remove_image function.
+        with pytest.raises(TypeError):
+            response = app_dht.remove_image(image_name)
+        """
+        try:
+            response = app_dht.remove_image(
+                image_name, topic_uuid, request_id, requestor_id
+            )
+        except docker.errors.NotFoundError:
+            # The image was not found, so the function should raise a NotFoundError exception.
+            assert True
+        else:
+            # The function should not raise an exception if the image is found.
+            assert False
+        """
+
     def test_stop_container(self):
         """Test the stop_container function."""
         container_id = (

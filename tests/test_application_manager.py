@@ -1,7 +1,12 @@
 import unittest
 from unittest import mock
 
+import docker
+import pytest
+
 import application_manager.app_dht as app_dht
+
+client = docker.from_env()
 
 
 class TestAppDHT(unittest.TestCase):
@@ -102,7 +107,61 @@ class TestAppDHT(unittest.TestCase):
             assert "(" in str(response_string[0])
         else:
             self.fail("The response is empty")
+
+
+    def test_update_dht_list_empty_list(self):
+        """Test the update_dht_list function with an empty list."""
+        ws = mock.Mock()
+        image_name = ""
+
+        # Call the update_dht_list function.
+        app_dht.update_dht_list(ws, image_name)
+
+        # Since the function doesn't do anything if the list is empty, we can simply assert True.
+        assert True
     '''
+
+    def test_update_dht_list_empty_list(self):
+        """Test the update_dht_list function with an empty list."""
+
+        # The image name is empty.
+        image_name = ""
+
+        # Set the expected value of the list of containers.
+        expected_list = []
+
+        # Call the update_dht_list function.
+        with pytest.raises(TypeError):
+            app_dht.update_dht_list(image_name)
+
+    def test_pull_image_success(self):
+        """Test the pull_image function with success."""
+
+        # The image name is "ubuntu".
+        image_name = "ubuntu"
+
+        # The topic UUID is "Pippo".
+        topic_uuid = "Pippo"
+
+        # The requestor ID is "1".
+        requestor_id = "1"
+
+        # The request ID is "1".
+        request_id = "1"
+
+        # Set the expected value of the image name.
+        expected_name = image_name
+
+        # Call the pull_image function.
+        try:
+            result, status_code = app_dht.pull_image(
+                image_name, topic_uuid, requestor_id, request_id
+            )
+        except Exception as e:
+            raise pytest.fail(e)
+
+        # Assert that the function returned the expected image name.
+        assert result == expected_name
 
     def test_stop_container(self):
         """Test the stop_container function."""

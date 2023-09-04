@@ -134,7 +134,7 @@ class TestAppDHT(unittest.TestCase):
         with pytest.raises(TypeError):
             app_dht.update_dht_list(image_name)
 
-    '''
+
     def test_pull_image_success(self):
         """Test the pull_image function with success."""
 
@@ -163,7 +163,7 @@ class TestAppDHT(unittest.TestCase):
 
         # Assert that the function returned the expected image name.
         assert result == expected_name
-    '''
+
 
     def test_stop_container(self):
         """Test the stop_container function."""

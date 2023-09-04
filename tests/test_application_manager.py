@@ -167,6 +167,7 @@ class TestAppDHT(unittest.TestCase):
     '''
 
     def test_stop_container(self):
+        print("STOP")
         """Test the stop_container function."""
         container_id = (
             "valid_container_id"  # Replace with an actual valid container ID

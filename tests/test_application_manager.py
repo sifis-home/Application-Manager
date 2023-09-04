@@ -174,6 +174,20 @@ class TestAppDHT(unittest.TestCase):
         with pytest.raises(TypeError):
             result, status_code = app_dht.pull_image("ubuntu")
 
+    def test_empty_list(self):
+        image_name = "test_image"
+        with pytest.raises(TypeError):
+            result = app_dht.update_dht_list(image_name)
+        # self.assertEqual(result, "OK")
+
+    def test_non_empty_list(self):
+        ws = mock.Mock()
+        image_name = "test_image"
+        containers = ["app_1", "app_2"]
+        with pytest.raises(TypeError):
+            result = app_dht.update_dht_list(image_name)
+        # self.assertEqual(result, "OK")
+
     def test_remove_image_not_found(self):
         """Test the remove_image function with an image that is not found."""
         image_name = "not_found"

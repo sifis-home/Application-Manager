@@ -16,7 +16,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
 # Build sifis-xacml
 ADD sifis-xacml /sifis-xacml
 RUN cd sifis-xacml && \
-    cargo build && \
+    $HOME/.cargo/bin/cargo build && \
     cd ..
 
 ADD application_manager /application_manager

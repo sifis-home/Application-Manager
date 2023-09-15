@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - arm64
+      - pre-build-sifis-xacml
 
 jobs:
   docker:

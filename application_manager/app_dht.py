@@ -5,7 +5,7 @@ import requests
 
 client = docker.from_env()
 
-api_url = "http://146.48.89.28:3000/"
+api_url = "http://localhost:3000/"
 
 
 def publish(ws, topic_uuid, requestor_id, request_id, containers):

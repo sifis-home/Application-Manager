@@ -61,7 +61,7 @@ def notify_mobile_application(message):
             image_name + " " + message
         )  # The application can be installed
     print("[!] " + notification)
-    address = "http://146.48.89.28:3000/"
+    address = "http://localhost:3000/"
     notification_data = {
         "requestor_id": requestor_id,
         "request_id": request_id,
@@ -301,7 +301,7 @@ def on_open(ws):
 
 if __name__ == "__main__":
     ws = websocket.WebSocketApp(
-        "ws://146.48.89.28:3000/ws",
+        "ws://localhost:3000/ws",
         on_open=on_open,
         on_message=on_message,
         on_error=on_error,

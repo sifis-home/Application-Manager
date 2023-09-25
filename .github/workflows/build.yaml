@@ -1,4 +1,4 @@
-name: application-manager
+name: docker
 
 on:
   push:

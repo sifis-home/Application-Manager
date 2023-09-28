@@ -66,8 +66,15 @@ def create_third_party_folder(source_path, json_filename):
 def run_cargo_command(json_filename):
     folder_path = "sifis-xacml"
     create_third_party_folder(folder_path, json_filename)
+
+    # Get the user's home directory and expand ~ to the full path
+    home_directory = os.path.expanduser("~")
+
+    # Construct the full path to the cargo executable
+    cargo_executable = os.path.join(home_directory, ".cargo", "bin", "cargo")
+
     command = [
-        "cargo",
+        cargo_executable,
         "run",
         "--",
         "-a",

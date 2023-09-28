@@ -118,6 +118,7 @@ def handle_start_container(topic_name):
 def handle_remove_image(topic_name, topic_uuid):
     try:
         image_name = topic_name["image_name"]
+        image_name = image_name.replace(":latest", "")
         request_id = topic_name["request_id"]
         requestor_id = topic_name["requestor_id"]
         result = app_dht.remove_image(

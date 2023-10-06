@@ -206,7 +206,7 @@ def on_message(ws, message):
                 evaluation = json_value["command"]["value"]["message"][
                     "evaluation"
                 ]
-                if evaluation == "NotApplicable":
+                if evaluation == "Deny":
                     print("The Operation has been denied from a UCS")
                     notify_mobile_application(message=None)
                 else:

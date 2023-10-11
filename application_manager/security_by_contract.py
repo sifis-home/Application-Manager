@@ -105,6 +105,7 @@ def xml_to_base64(xml_file_path):
         request64 = b.decode("utf-8")
 
         return request64
+
     except Exception as e:
         return str(e)
 
@@ -148,6 +149,7 @@ def get_labels(image_name):
         source_path = "sifis-xacml/manifest_"
         complete_path = source_path + image_name + "/"
         files = os.listdir(complete_path)
+        catch_topic.set_num_request(len(files))
         for file in files:
             file_path = complete_path + file
             formatted_json, message_id = handle_xcml_request(file_path)
@@ -187,6 +189,10 @@ def handle_xcml_request(file_path):
     organized_json = organize_json(base64_content)
     print(json.dumps(organized_json, indent=2))
     message_id = organized_json["command"]["value"]["message"]["message_id"]
+    request = Path(file_path).read_text()
+    tup = (message_id, request)
+    catch_topic.set_request_message_mapping(tup)
+
     return organized_json, message_id
 
 

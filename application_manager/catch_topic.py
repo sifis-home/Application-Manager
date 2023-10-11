@@ -10,7 +10,20 @@ registration_id = 1
 session_id = "None"
 permit_installation = False
 messages = []
+denied_messages = []
+num_request = 0
+permit_messages = []
 
+request_message_mapping = []
+
+def set_request_message_mapping(tuple):
+    global request_message_mapping
+    request_message_mapping.append(tuple)
+    return request_message_mapping
+
+def set_num_request(num):
+    global num_request
+    num_request = num
 
 def set_messages(message_id):
     global messages
@@ -200,6 +213,9 @@ def on_message(ws, message):
     global REGISTERED
     global session_id
     global permit_installation
+    global messages, denied_messages, permit_messages
+    global num_request
+    global request_message_mapping
     json_message = json.loads(message)
 
     try:
@@ -215,19 +231,32 @@ def on_message(ws, message):
                 evaluation = json_value["command"]["value"]["message"][
                     "evaluation"
                 ]
-                if evaluation == "Deny":
-                    print("The Operation has been denied from a UCS")
-                    notify_mobile_application(message=None)
-                else:
+                try:
                     if message_id in messages:
                         messages.remove(message_id)
-                        if len(messages) == 0:
-                            print("[!] Permit Installation")
-                            handle_pull_image()
-                            notify_mobile_application(
-                                message="Application can be installed"
-                            )
-
+                except Exception as e:
+                    print(e)
+                if evaluation == "Deny":
+                    denied_messages.append(message_id)
+                else:
+                    permit_messages.append(message_id)
+                           
+                num_responses = len(denied_messages) + len(permit_messages)
+                if num_responses == num_request:
+                    if len(permit_messages) == num_request:
+                        print("[!] Permit Installation")
+                        handle_pull_image()
+                        notify_mobile_application(
+                            message="Application can be installed"
+                        )
+                    else:
+                        notify_mobile_application(message="Application not compliant")
+                        for deny_id in denied_messages:
+                            for id, req in request_message_mapping:
+                                if id == deny_id:
+                                    notify_mobile_application(message=f"The not compliant id message is the following: {str(id)}")   #TODO: to substitute with request fields
+                    permit_messages = []
+                    denied_messages = []
             if (
                 json_value["command"]["value"]["topic_name"]
                 == "application_manager_registration"

@@ -131,7 +131,7 @@ def organize_json(request_base64):
     return ws_req
 
 
-def get_labels(image_name):
+def get_labels(ws, image_name):
     # Name of the file to execute
     script_file = "application_manager/get-labels.sh"
     sifis_prefix = "gchr.io/sifis-home/"
@@ -154,7 +154,9 @@ def get_labels(image_name):
             file_path = complete_path + file
             formatted_json, message_id = handle_xcml_request(file_path)
             catch_topic.set_messages(message_id)
-            requests.post(websocket_uri + "pub", json=formatted_json)
+            # requests.post(websocket_uri + "pub", json=formatted_json)
+            ws_req = {"RequestPubMessage": {"value": formatted_json}}
+            ws.send(json.dumps(ws_req))
         return json_filename, message_id
     except subprocess.CalledProcessError as e:
         print("Error during script execution:", e)

@@ -1,4 +1,5 @@
 import json
+import os
 
 import app_dht
 import requests
@@ -9,25 +10,21 @@ REGISTERED = False
 registration_id = 1
 session_id = "None"
 permit_installation = False
-messages = []
-denied_messages = []
-num_request = 0
-permit_messages = []
 
-request_message_mapping = []
 
 def set_request_message_mapping(tuple):
-    global request_message_mapping
-    request_message_mapping.append(tuple)
-    return request_message_mapping
+    with open("request_message_mapping.txt", "a") as mm:
+        mm.write(str(tuple) + "\n")
 
-def set_num_request(num):
-    global num_request
-    num_request = num
+
+def set_num_request(num_request):
+    with open("num_request.txt", "w") as num:
+        num.write(str(num_request))
+
 
 def set_messages(message_id):
-    global messages
-    messages.append(message_id)
+    with open("messages.txt", "a") as m:
+        m.write(message_id + "\n")
 
 
 def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
@@ -38,7 +35,7 @@ def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
             ":latest", ""
         )
         print("[!] Recovering App LABELS\n")
-        _, app_id = security_by_contract.get_labels(image_name)
+        _, app_id = security_by_contract.get_labels(ws, image_name)
         session_id = app_id
         if session_id == "None":
             notify_mobile_application(message=None)
@@ -213,11 +210,7 @@ def on_message(ws, message):
     global REGISTERED
     global session_id
     global permit_installation
-    global messages, denied_messages, permit_messages
-    global num_request
-    global request_message_mapping
     json_message = json.loads(message)
-
     try:
         if "Volatile" in json_message:
             json_message = json_message["Volatile"]
@@ -231,18 +224,67 @@ def on_message(ws, message):
                 evaluation = json_value["command"]["value"]["message"][
                     "evaluation"
                 ]
+                messages = []
+                permit_messages = []
+                request_message_mapping = []
+                denied_messages = []
                 try:
+                    with open("messages.txt", "r") as m:
+                        lines = m.readlines()
+                        for line in lines:
+                            # print("Content of txt: " + str(line))
+                            _id = str(line)
+                            if "\n" in _id:
+                                _id.replace("\n", "")
+                            messages.append(_id)
                     if message_id in messages:
                         messages.remove(message_id)
                 except Exception as e:
                     print(e)
+                # print("Evaluation Part")
                 if evaluation == "Deny":
-                    denied_messages.append(message_id)
+                    print("The request has been denied!!!")
+                    with open("denied_messages.txt", "a") as d:
+                        try:
+                            d_lines = d.readlines()
+                            num_denied = len(d_lines)
+                        except:
+                            num_denied = 1
+                        # print("num_denied: " + str(num_denied))
+                        d.write(message_id)
+                        denied_messages.append(message_id)
                 else:
-                    permit_messages.append(message_id)
-                           
-                num_responses = len(denied_messages) + len(permit_messages)
+                    with open("permit_messages.txt", "a") as p:
+                        print("Request Permitted")
+                        try:
+                            p_lines = p.readlines()
+                            num_permit = len(p_lines)
+                        except:
+                            num_permit = 1
+                        # print("num_permit: " + str(num_permit))
+                        p.write(message_id)
+                        permit_messages.append(message_id)
+                with open("num_request.txt", "r") as n:
+                    lines = n.readlines()
+                    for line in lines:
+                        num_request = int(line)
+                        print("num_request: " + str(num_request))
+                try:
+                    print("Total DENIED requests: " + str(num_denied))
+                except:
+                    num_denied = 0
+                    print("NO DENIED requests")
+                try:
+                    print("Total PERMIT requests: " + str(num_permit))
+                except:
+                    num_permit = 0
+                    print("NO PERMIT requests")
+                num_responses = num_denied + num_permit
+                print("num_responses: " + str(num_responses))
                 if num_responses == num_request:
+                    print(
+                        "Reached the Total number of requests ... permission evaluation"
+                    )
                     if len(permit_messages) == num_request:
                         print("[!] Permit Installation")
                         handle_pull_image()
@@ -250,13 +292,32 @@ def on_message(ws, message):
                             message="Application can be installed"
                         )
                     else:
-                        notify_mobile_application(message="Application not compliant")
+                        print("DENIED OPERATION ==> Application not compliant")
+                        notify_mobile_application(
+                            message="Application not compliant"
+                        )
+                        with open("request_message_mapping.txt", "r") as mm:
+                            lines = mm.readlines()
+                            for line in lines:
+                                if "\n" in line:
+                                    line.replace("\n", "")
+                                tup = eval(line)
+                                request_message_mapping.append(tup)
                         for deny_id in denied_messages:
                             for id, req in request_message_mapping:
                                 if id == deny_id:
-                                    notify_mobile_application(message=f"The not compliant id message is the following: {str(id)}")   #TODO: to substitute with request fields
+                                    notify_mobile_application(
+                                        message=f"The not compliant id message is the following: {str(id)}"
+                                    )  # TODO: to substitute with request fields
                     permit_messages = []
                     denied_messages = []
+                    request_message_mapping = []
+                    if os.path.exists("permit_messages.txt"):
+                        os.remove("permit_messages.txt")
+                    if os.path.exists("permit_messages.txt"):
+                        os.remove("denied_messages.txt")
+                    os.remove("request_message_mapping.txt")
+                    os.remove("messages.txt")
             if (
                 json_value["command"]["value"]["topic_name"]
                 == "application_manager_registration"
@@ -271,7 +332,7 @@ def on_message(ws, message):
                 else:
                     print("[!] Application Manager is not registered to UC")
     except Exception as e:
-        # print("ERROR: " + str(e))
+        #print("ERROR: " + str(e))
         pass
 
     if "Persistent" in json_message:

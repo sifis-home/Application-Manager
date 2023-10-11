@@ -9,6 +9,12 @@ REGISTERED = False
 registration_id = 1
 session_id = "None"
 permit_installation = False
+messages = []
+
+
+def set_messages(message_id):
+    global messages
+    messages.append(message_id)
 
 
 def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
@@ -203,6 +209,9 @@ def on_message(ws, message):
             purpose = json_value["command"]["value"]["message"]["purpose"]
 
             if purpose == "TRY_RESPONSE":
+                message_id = json_value["command"]["value"]["message"][
+                    "message_id"
+                ]
                 evaluation = json_value["command"]["value"]["message"][
                     "evaluation"
                 ]
@@ -210,11 +219,14 @@ def on_message(ws, message):
                     print("The Operation has been denied from a UCS")
                     notify_mobile_application(message=None)
                 else:
-                    print("[!] Permit Installation")
-                    handle_pull_image()
-                    notify_mobile_application(
-                        message="Application can be installed"
-                    )
+                    if message_id in messages:
+                        messages.remove(message_id)
+                        if len(messages) == 0:
+                            print("[!] Permit Installation")
+                            handle_pull_image()
+                            notify_mobile_application(
+                                message="Application can be installed"
+                            )
 
             if (
                 json_value["command"]["value"]["topic_name"]

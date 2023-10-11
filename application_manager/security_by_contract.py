@@ -6,6 +6,7 @@ import subprocess
 import uuid
 from pathlib import Path
 
+import catch_topic
 import requests
 
 REGISTERED = False
@@ -144,8 +145,14 @@ def get_labels(image_name):
         path = "sifis-xacml/data/"
         save_manifest_to_file(manifest_data, path + json_filename)
         run_cargo_command(json_filename)
-        formatted_json, message_id = handle_xcml_request(image_name)
-        requests.post(websocket_uri + "pub", json=formatted_json)
+        source_path = "sifis-xacml/manifest_"
+        complete_path = source_path + image_name + "/"
+        files = os.listdir(complete_path)
+        for file in files:
+            file_path = complete_path + file
+            formatted_json, message_id = handle_xcml_request(file_path)
+            catch_topic.set_messages(message_id)
+            requests.post(websocket_uri + "pub", json=formatted_json)
         return json_filename, message_id
     except subprocess.CalledProcessError as e:
         print("Error during script execution:", e)
@@ -174,9 +181,8 @@ def _extract_labels(image_name, script_file, sifis_prefix, version):
     return manifest_data
 
 
-def handle_xcml_request(image_name):
-    source_path = "sifis-xacml/manifest_"
-    file_path = source_path + image_name + "/request_1.xml"
+def handle_xcml_request(file_path):
+    # file_path = source_path + image_name + "/request_1.xml"
     base64_content = xml_to_base64(file_path)
     organized_json = organize_json(base64_content)
     print(json.dumps(organized_json, indent=2))

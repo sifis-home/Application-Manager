@@ -11,7 +11,24 @@ import requests
 
 REGISTERED = False
 websocket_uri = "http://localhost:3000/"
+messages = []
+denied_messages = []
+num_request = 0
+permit_messages = []
+request_message_mapping = []
 
+def set_request_message_mapping(tuple):
+    global request_message_mapping
+    request_message_mapping.append(tuple)
+    return request_message_mapping
+
+def set_num_request(num):
+    global num_request
+    num_request = num
+
+def set_messages(message_id):
+    global messages
+    messages.append(message_id)
 
 def get_json_register():
     ws_req = {
@@ -131,7 +148,7 @@ def organize_json(request_base64):
     return ws_req
 
 
-def get_labels(ws, image_name):
+def get_labels(image_name):
     # Name of the file to execute
     script_file = "application_manager/get-labels.sh"
     sifis_prefix = "gchr.io/sifis-home/"
@@ -149,14 +166,12 @@ def get_labels(ws, image_name):
         source_path = "sifis-xacml/manifest_"
         complete_path = source_path + image_name + "/"
         files = os.listdir(complete_path)
-        catch_topic.set_num_request(len(files))
+        set_num_request(len(files))
         for file in files:
             file_path = complete_path + file
             formatted_json, message_id = handle_xcml_request(file_path)
-            catch_topic.set_messages(message_id)
-            # requests.post(websocket_uri + "pub", json=formatted_json)
-            ws_req = {"RequestPubMessage": {"value": formatted_json}}
-            ws.send(json.dumps(ws_req))
+            set_messages(message_id)
+            requests.post(websocket_uri + "pub", json=formatted_json)
         return json_filename, message_id
     except subprocess.CalledProcessError as e:
         print("Error during script execution:", e)
@@ -193,7 +208,7 @@ def handle_xcml_request(file_path):
     message_id = organized_json["command"]["value"]["message"]["message_id"]
     request = Path(file_path).read_text()
     tup = (message_id, request)
-    catch_topic.set_request_message_mapping(tup)
+    set_request_message_mapping(tup)
 
     return organized_json, message_id
 

@@ -6,7 +6,6 @@ import subprocess
 import uuid
 from pathlib import Path
 
-import catch_topic
 import requests
 
 REGISTERED = False
@@ -16,19 +15,34 @@ denied_messages = []
 num_request = 0
 permit_messages = []
 request_message_mapping = []
+request_id = None
+
+
+def set_request_id(sent_request_id):
+    global request_id
+    request_id = sent_request_id
+
+
+def get_request_id():
+    global request_id
+    return request_id
+
 
 def set_request_message_mapping(tuple):
     global request_message_mapping
     request_message_mapping.append(tuple)
     return request_message_mapping
 
+
 def set_num_request(num):
     global num_request
     num_request = num
 
+
 def set_messages(message_id):
     global messages
     messages.append(message_id)
+
 
 def get_json_register():
     ws_req = {
@@ -156,9 +170,7 @@ def get_labels(image_name):
 
     try:
         # Execute the shell command with the given image name as an argument
-        manifest_data = _extract_labels(
-            image_name, script_file, sifis_prefix, version
-        )
+        manifest_data = _extract_labels(image_name, script_file, sifis_prefix, version)
         json_filename = "manifest_" + image_name + ".json"
         path = "sifis-xacml/data/"
         save_manifest_to_file(manifest_data, path + json_filename)

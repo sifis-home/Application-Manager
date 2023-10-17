@@ -89,18 +89,12 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
                     "result": "successfull",
                 }
                 requests.post(
-                    api_url
-                    + "topic_name/"
-                    + topic_name
-                    + "/topic_uuid/"
-                    + topic_uuid,
+                    api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
                     json=pulling_data,
                 )
 
                 print(f"[!] Image {image_name} pulled successfully!")
-                start_container(
-                    image_name, topic_uuid, requestor_id, request_id
-                )
+                start_container(image_name, topic_uuid, requestor_id, request_id)
                 return "\n Pulling and Starting operation completed ..."
         except docker.errors.APIError as e:
             pulling_data = {
@@ -111,11 +105,7 @@ def pull_image(ws, image_name, topic_uuid, requestor_id, request_id):
                 "result": "Error while pulling image {image_name}: {e}",
             }
             requests.post(
-                api_url
-                + "topic_name/"
-                + topic_name
-                + "/topic_uuid/"
-                + topic_uuid,
+                api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
                 json=pulling_data,
             )
             return f"Error while pulling image {image_name}: {e}", 500
@@ -147,11 +137,7 @@ def start_container(image_name, topic_uuid, requestor_id, request_id):
                 "container_id": container.id,
             }
             local_response = requests.post(
-                api_url
-                + "topic_name/"
-                + topic_name
-                + "/topic_uuid/"
-                + topic_uuid,
+                api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
                 json=data,
             )
             return
@@ -180,11 +166,7 @@ def stop_container(container_id, topic_uuid, request_id, requestor_id):
                 "result": "successfull",
             }
             requests.post(
-                api_url
-                + "topic_name/"
-                + topic_name
-                + "/topic_uuid/"
-                + topic_uuid,
+                api_url + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
                 json=container_info,
             )
             return f"Container {container_id} stopped successfully!"

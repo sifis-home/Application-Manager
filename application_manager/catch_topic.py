@@ -10,8 +10,10 @@ registration_id = 1
 session_id = "None"
 permit_installation = False
 
+
 def get_messages():
     return security_by_contract.messages
+
 
 def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
     global REGISTERED, session_id
@@ -32,6 +34,23 @@ def UCS_request(ws, topic_name, topic_uuid, request_id, requestor_id):
         print(e)
 
 
+def send_installation_results(description, request_id, result):
+    address = "http://localhost:3000/"
+    topic_name = "SIFIS:mobile-application"
+    topic_uuid = "installation-results"
+    permission_data = {
+        "result": result,
+        "request_id": request_id,
+        "description": description,
+    }
+    requests.post(
+        address + "topic_name/" + topic_name + "/topic_uuid/" + topic_uuid,
+        json=permission_data,
+    )
+    print("\n[!] Installation Result sent: " + str(result) + "\n")
+    return
+
+
 def notify_mobile_application(message):
     global global_pull_image_params
     params = global_pull_image_params
@@ -43,9 +62,9 @@ def notify_mobile_application(message):
         try:
             image_name = topic_value["image_name"]
             try:
-                image_name = image_name.replace(
-                    "ghcr.io/sifis-home/", ""
-                ).replace(":latest", "")
+                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(
+                    ":latest", ""
+                )
             except:
                 pass
             requestor_id = topic_value["requestor_id"]
@@ -59,9 +78,7 @@ def notify_mobile_application(message):
             + " cannot be installed, the operation is NOT permitted by Usage Control"
         )
     else:
-        notification = (
-            image_name + " " + message
-        )  # The application can be installed
+        notification = image_name + " " + message  # The application can be installed
     print("[!] " + notification)
     address = "http://localhost:3000/"
     notification_data = {
@@ -88,9 +105,9 @@ def handle_pull_image():
         try:
             image_name = topic_value["image_name"]
             try:
-                image_name = image_name.replace(
-                    "ghcr.io/sifis-home/", ""
-                ).replace(":latest", "")
+                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(
+                    ":latest", ""
+                )
             except:
                 pass
             requestor_id = topic_value["requestor_id"]
@@ -123,9 +140,7 @@ def handle_remove_image(topic_name, topic_uuid):
         image_name = image_name.replace(":latest", "")
         request_id = topic_name["request_id"]
         requestor_id = topic_name["requestor_id"]
-        result = app_dht.remove_image(
-            image_name, topic_uuid, request_id, requestor_id
-        )
+        result = app_dht.remove_image(image_name, topic_uuid, request_id, requestor_id)
         print(result)
         print(
             "\n-----------------  REMOVING OPERATION COMPLETED ---------------------------------\n"
@@ -158,9 +173,7 @@ def handle_remove_container(topic_name):
 
 def handle_list_containers(topic_uuid, requestor_id, request_id):
     try:
-        result = app_dht.list_containers(
-            topic_uuid, requestor_id, request_id, None
-        )
+        result = app_dht.list_containers(topic_uuid, requestor_id, request_id, None)
         print(result)
         print(
             "\n-----------------  LISTING OPERATION COMPLETED ---------------------------------\n"
@@ -177,9 +190,7 @@ def wait_for_access(json_value):
         if _id == "pep-application_manager":
             purpose = json_value["command"]["value"]["message"]["purpose"]
             code = json_value["command"]["value"]["message"]["code"]
-            response_id = json_value["command"]["value"]["message"][
-                "message_id"
-            ]
+            response_id = json_value["command"]["value"]["message"]["message_id"]
             if (
                 purpose == "REGISTER_RESPONSE"
                 and code == "OK"
@@ -208,12 +219,8 @@ def on_message(ws, message):
             purpose = json_value["command"]["value"]["message"]["purpose"]
 
             if purpose == "TRY_RESPONSE":
-                message_id = json_value["command"]["value"]["message"][
-                    "message_id"
-                ]
-                evaluation = json_value["command"]["value"]["message"][
-                    "evaluation"
-                ]
+                message_id = json_value["command"]["value"]["message"]["message_id"]
+                evaluation = json_value["command"]["value"]["message"]["evaluation"]
                 try:
                     if message_id in messages:
                         messages.remove(message_id)
@@ -223,21 +230,31 @@ def on_message(ws, message):
                     security_by_contract.denied_messages.append(message_id)
                 else:
                     security_by_contract.permit_messages.append(message_id)
-                           
-                num_responses = len(security_by_contract.denied_messages) + len(security_by_contract.permit_messages)
+
+                num_responses = len(security_by_contract.denied_messages) + len(
+                    security_by_contract.permit_messages
+                )
                 if num_responses == security_by_contract.num_request:
-                    if len(security_by_contract.permit_messages) == security_by_contract.num_request:
+                    if (
+                        len(security_by_contract.permit_messages)
+                        == security_by_contract.num_request
+                    ):
                         print("[!] Permit Installation")
                         handle_pull_image()
-                        notify_mobile_application(
-                            message="Application can be installed"
-                        )
+                        request_id = security_by_contract.get_request_id()
+                        send_installation_results("null", request_id, "installed")
                     else:
                         notify_mobile_application(message="Application not compliant")
                         for deny_id in security_by_contract.denied_messages:
                             for id, req in security_by_contract.request_message_mapping:
                                 if id == deny_id:
-                                    notify_mobile_application(message=f"The not compliant id message is the following: {str(id)}")   #TODO: to substitute with request fields
+                                    request_id = security_by_contract.get_request_id()
+                                    send_installation_results(
+                                        "\nYour security policies prevent the app from being installed.",
+                                        request_id,
+                                        "not-compliant",
+                                    )
+                                    # notify_mobile_application(message=f"The not compliant id message is the following: {str(id)}")   #TODO: to substitute with request fields
                     security_by_contract.permit_messages = []
                     security_by_contract.denied_messages = []
             if (
@@ -267,9 +284,7 @@ def on_message(ws, message):
                 topic_value = json_message["value"]
                 request_id = topic_value["request_id"]
                 requestor_id = topic_value["requestor_id"]
-                handle_message(
-                    ws, topic_uuid, topic_value, request_id, requestor_id
-                )
+                handle_message(ws, topic_uuid, topic_value, request_id, requestor_id)
 
 
 global_pull_image_params = None
@@ -283,9 +298,19 @@ def save_pull_image_params(params):
 
 def handle_message(ws, topic_uuid, topic_value, request_id, requestor_id):
     global permit_installation
+
     if "operation" in topic_value:
         operation = topic_value["operation"]
+        if operation == "install_anyway":
+            print("\n[!] User chose to install the Application Anyway !!!\n")
+            handle_pull_image()
+            send_installation_results("null", request_id, "installed")
+
+        if operation == "abort":
+            print("\n[!] User chose to abort the installation !!!\n")
+            send_installation_results("null", request_id, "aborted")
         if operation == "pull_image":
+            security_by_contract.set_request_id(request_id)
             print("[!] Forwarding UCS Request")
             UCS_request(ws, topic_value, topic_uuid, request_id, requestor_id)
             print("[!] Pulling Image Request")

@@ -245,16 +245,36 @@ def on_message(ws, message):
                         send_installation_results("null", request_id, "installed")
                     else:
                         notify_mobile_application(message="Application not compliant")
+                        device_action = []
                         for deny_id in security_by_contract.denied_messages:
                             for id, req in security_by_contract.request_message_mapping:
                                 if id == deny_id:
-                                    request_id = security_by_contract.get_request_id()
-                                    send_installation_results(
-                                        "\nYour security policies prevent the app from being installed.",
-                                        request_id,
-                                        "not-compliant",
-                                    )
-                                    # notify_mobile_application(message=f"The not compliant id message is the following: {str(id)}")   #TODO: to substitute with request fields
+                                    #request_id = security_by_contract.get_request_id()
+                                    request = str(req)
+                                    device_type = request.split('<Attribute AttributeId="eu.sifis-home:1.0:resource:device:device-type" IncludeInResult="false">', 1)[1].split('</AttributeValue>')[0]
+                                    device_type = device_type.split('<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">', 1)[1]
+                                    print("DEVICE: ", device_type)
+                                    action_id = request.split('<Attribute AttributeId="eu.sifis-home:1.0:resource:device:action:action-id" IncludeInResult="false">', 1)[1].split('</AttributeValue>')[0]
+                                    action_id = action_id.split('<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">', 1)[1]
+                                    action_id = action_id.replace("_", " ")
+                                    print("ACTION_ID: " + action_id)
+                                    device_action.append((device_type, action_id))
+                        mess_first_part = '\nIn particular, '
+                        mess_second_part  = 'is not allowed.'
+                        mess = ''
+
+                        for device, action in device_action:
+                            new_mess = 'the operation "' + action  + '" on the device "' + device + '", '
+                            mess = mess + new_mess
+
+                        final_mess = mess_first_part + mess + mess_second_part
+                        print(final_mess)
+                        request_id = security_by_contract.get_request_id()
+                        send_installation_results(
+                                "\nYour security policies prevent the app from being installed. " + final_mess ,
+                                request_id,
+                                "not-compliant",
+                        )
                     security_by_contract.permit_messages = []
                     security_by_contract.denied_messages = []
             if (

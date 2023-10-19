@@ -62,9 +62,9 @@ def notify_mobile_application(message):
         try:
             image_name = topic_value["image_name"]
             try:
-                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(
-                    ":latest", ""
-                )
+                image_name = image_name.replace(
+                    "ghcr.io/sifis-home/", ""
+                ).replace(":latest", "")
             except:
                 pass
             requestor_id = topic_value["requestor_id"]
@@ -78,7 +78,9 @@ def notify_mobile_application(message):
             + " cannot be installed, the operation is NOT permitted by Usage Control"
         )
     else:
-        notification = image_name + " " + message  # The application can be installed
+        notification = (
+            image_name + " " + message
+        )  # The application can be installed
     print("[!] " + notification)
     address = "http://localhost:3000/"
     notification_data = {
@@ -105,9 +107,9 @@ def handle_pull_image():
         try:
             image_name = topic_value["image_name"]
             try:
-                image_name = image_name.replace("ghcr.io/sifis-home/", "").replace(
-                    ":latest", ""
-                )
+                image_name = image_name.replace(
+                    "ghcr.io/sifis-home/", ""
+                ).replace(":latest", "")
             except:
                 pass
             requestor_id = topic_value["requestor_id"]
@@ -140,7 +142,9 @@ def handle_remove_image(topic_name, topic_uuid):
         image_name = image_name.replace(":latest", "")
         request_id = topic_name["request_id"]
         requestor_id = topic_name["requestor_id"]
-        result = app_dht.remove_image(image_name, topic_uuid, request_id, requestor_id)
+        result = app_dht.remove_image(
+            image_name, topic_uuid, request_id, requestor_id
+        )
         print(result)
         print(
             "\n-----------------  REMOVING OPERATION COMPLETED ---------------------------------\n"
@@ -173,7 +177,9 @@ def handle_remove_container(topic_name):
 
 def handle_list_containers(topic_uuid, requestor_id, request_id):
     try:
-        result = app_dht.list_containers(topic_uuid, requestor_id, request_id, None)
+        result = app_dht.list_containers(
+            topic_uuid, requestor_id, request_id, None
+        )
         print(result)
         print(
             "\n-----------------  LISTING OPERATION COMPLETED ---------------------------------\n"
@@ -190,7 +196,9 @@ def wait_for_access(json_value):
         if _id == "pep-application_manager":
             purpose = json_value["command"]["value"]["message"]["purpose"]
             code = json_value["command"]["value"]["message"]["code"]
-            response_id = json_value["command"]["value"]["message"]["message_id"]
+            response_id = json_value["command"]["value"]["message"][
+                "message_id"
+            ]
             if (
                 purpose == "REGISTER_RESPONSE"
                 and code == "OK"
@@ -219,8 +227,12 @@ def on_message(ws, message):
             purpose = json_value["command"]["value"]["message"]["purpose"]
 
             if purpose == "TRY_RESPONSE":
-                message_id = json_value["command"]["value"]["message"]["message_id"]
-                evaluation = json_value["command"]["value"]["message"]["evaluation"]
+                message_id = json_value["command"]["value"]["message"][
+                    "message_id"
+                ]
+                evaluation = json_value["command"]["value"]["message"][
+                    "evaluation"
+                ]
                 try:
                     if message_id in messages:
                         messages.remove(message_id)
@@ -231,9 +243,9 @@ def on_message(ws, message):
                 else:
                     security_by_contract.permit_messages.append(message_id)
 
-                num_responses = len(security_by_contract.denied_messages) + len(
-                    security_by_contract.permit_messages
-                )
+                num_responses = len(
+                    security_by_contract.denied_messages
+                ) + len(security_by_contract.permit_messages)
                 if num_responses == security_by_contract.num_request:
                     if (
                         len(security_by_contract.permit_messages)
@@ -242,38 +254,66 @@ def on_message(ws, message):
                         print("[!] Permit Installation")
                         handle_pull_image()
                         request_id = security_by_contract.get_request_id()
-                        send_installation_results("null", request_id, "installed")
+                        send_installation_results(
+                            "null", request_id, "installed"
+                        )
                     else:
-                        notify_mobile_application(message="Application not compliant")
+                        notify_mobile_application(
+                            message="Application not compliant"
+                        )
                         device_action = []
                         for deny_id in security_by_contract.denied_messages:
-                            for id, req in security_by_contract.request_message_mapping:
+                            for (
+                                id,
+                                req,
+                            ) in security_by_contract.request_message_mapping:
                                 if id == deny_id:
-                                    #request_id = security_by_contract.get_request_id()
+                                    # request_id = security_by_contract.get_request_id()
                                     request = str(req)
-                                    device_type = request.split('<Attribute AttributeId="eu.sifis-home:1.0:resource:device:device-type" IncludeInResult="false">', 1)[1].split('</AttributeValue>')[0]
-                                    device_type = device_type.split('<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">', 1)[1]
+                                    device_type = request.split(
+                                        '<Attribute AttributeId="eu.sifis-home:1.0:resource:device:device-type" IncludeInResult="false">',
+                                        1,
+                                    )[1].split("</AttributeValue>")[0]
+                                    device_type = device_type.split(
+                                        '<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">',
+                                        1,
+                                    )[1]
                                     print("DEVICE: ", device_type)
-                                    action_id = request.split('<Attribute AttributeId="eu.sifis-home:1.0:resource:device:action:action-id" IncludeInResult="false">', 1)[1].split('</AttributeValue>')[0]
-                                    action_id = action_id.split('<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">', 1)[1]
+                                    action_id = request.split(
+                                        '<Attribute AttributeId="eu.sifis-home:1.0:resource:device:action:action-id" IncludeInResult="false">',
+                                        1,
+                                    )[1].split("</AttributeValue>")[0]
+                                    action_id = action_id.split(
+                                        '<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">',
+                                        1,
+                                    )[1]
                                     action_id = action_id.replace("_", " ")
                                     print("ACTION_ID: " + action_id)
-                                    device_action.append((device_type, action_id))
-                        mess_first_part = '\nIn particular, '
-                        mess_second_part  = 'is not allowed.'
-                        mess = ''
+                                    device_action.append(
+                                        (device_type, action_id)
+                                    )
+                        mess_first_part = "\nIn particular, "
+                        mess_second_part = "is not allowed."
+                        mess = ""
 
                         for device, action in device_action:
-                            new_mess = 'the operation "' + action  + '" on the device "' + device + '", '
+                            new_mess = (
+                                'the operation "'
+                                + action
+                                + '" on the device "'
+                                + device
+                                + '", '
+                            )
                             mess = mess + new_mess
 
                         final_mess = mess_first_part + mess + mess_second_part
                         print(final_mess)
                         request_id = security_by_contract.get_request_id()
                         send_installation_results(
-                                "\nYour security policies prevent the app from being installed. " + final_mess ,
-                                request_id,
-                                "not-compliant",
+                            "\nYour security policies prevent the app from being installed. "
+                            + final_mess,
+                            request_id,
+                            "not-compliant",
                         )
                     security_by_contract.permit_messages = []
                     security_by_contract.denied_messages = []
@@ -304,7 +344,9 @@ def on_message(ws, message):
                 topic_value = json_message["value"]
                 request_id = topic_value["request_id"]
                 requestor_id = topic_value["requestor_id"]
-                handle_message(ws, topic_uuid, topic_value, request_id, requestor_id)
+                handle_message(
+                    ws, topic_uuid, topic_value, request_id, requestor_id
+                )
 
 
 global_pull_image_params = None

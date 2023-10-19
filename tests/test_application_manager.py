@@ -1,9 +1,10 @@
 import unittest
 from unittest import mock
 
-import application_manager.app_dht as app_dht
 import docker
 import pytest
+
+import application_manager.app_dht as app_dht
 
 client = docker.from_env()
 
@@ -76,7 +77,9 @@ class TestAppDHT(unittest.TestCase):
 
         # Call the publish function.
         with self.assertRaises(Exception):
-            app_dht.publish(ws, topic_uuid, requestor_id, request_id, containers)
+            app_dht.publish(
+                ws, topic_uuid, requestor_id, request_id, containers
+            )
 
     def test_pull_image_empty_image_name(self):
         """Test the pull_image function with an empty image name."""
@@ -225,10 +228,14 @@ class TestAppDHT(unittest.TestCase):
 
     def test_stop_container(self):
         """Test the stop_container function."""
-        container_id = "valid_container_id"  # Replace with an actual valid container ID
+        container_id = (
+            "valid_container_id"  # Replace with an actual valid container ID
+        )
         topic_uuid = "valid_topic_uuid"  # Replace with a valid topic UUID
         request_id = "valid_request_id"  # Replace with a valid request ID
-        requestor_id = "valid_requestor_id"  # Replace with a valid requestor ID
+        requestor_id = (
+            "valid_requestor_id"  # Replace with a valid requestor ID
+        )
 
         # Call the stop_container function.
         result = app_dht.stop_container(
@@ -240,7 +247,9 @@ class TestAppDHT(unittest.TestCase):
 
     def test_remove_container(self):
         """Test the remove_container function."""
-        container_id = "valid_container_id"  # Replace with an actual valid container ID
+        container_id = (
+            "valid_container_id"  # Replace with an actual valid container ID
+        )
 
         # Call the remove_container function.
         result = app_dht.remove_container(container_id)

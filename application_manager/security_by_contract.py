@@ -170,7 +170,9 @@ def get_labels(image_name):
 
     try:
         # Execute the shell command with the given image name as an argument
-        manifest_data = _extract_labels(image_name, script_file, sifis_prefix, version)
+        manifest_data = _extract_labels(
+            image_name, script_file, sifis_prefix, version
+        )
         json_filename = "manifest_" + image_name + ".json"
         path = "sifis-xacml/data/"
         save_manifest_to_file(manifest_data, path + json_filename)
